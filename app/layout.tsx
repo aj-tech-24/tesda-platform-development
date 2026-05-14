@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Screensaver } from '@/components/screensaver'
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,9 +14,21 @@ const inter = Inter({
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'TESDA - Technical Education Skills Development',
-  description: 'Discover professional training programs and technical certifications from TESDA accredited training centers',
-  generator: 'v0.app',
+  title: {
+    default: 'TESDA - Technical Education & Skills Development',
+    template: '%s | TESDA',
+  },
+  description: 'Discover professional training programs and technical certifications from TESDA accredited training centers across the Philippines. Build in-demand skills for a better career.',
+  keywords: ['TESDA', 'technical education', 'skills development', 'training programs', 'TVET', 'Philippines', 'certification', 'NTTC', 'training centers'],
+  authors: [{ name: 'TESDA' }],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: 'website',
+    locale: 'en_PH',
+    siteName: 'TESDA',
+    title: 'TESDA - Technical Education & Skills Development',
+    description: 'Discover professional training programs and technical certifications from TESDA accredited training centers.',
+  },
   icons: {
     icon: '/tesda-logo.png',
     apple: '/tesda-logo.png',
@@ -39,6 +52,7 @@ export default function RootLayout({
           <Screensaver />
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
+          <Toaster position="top-center" richColors />
         </ThemeProvider>
       </body>
     </html>

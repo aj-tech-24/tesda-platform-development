@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2, Building2, MapPin, Contact2, Tags, ImagePlus, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 interface CenterFormProps {
   initialData?: any
@@ -40,7 +41,6 @@ export function CenterForm({ initialData, isEditing = false }: CenterFormProps) 
   const [loading, setLoading] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [logoFile, setLogoFile] = useState<File | null>(null)
-  const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -52,24 +52,22 @@ export function CenterForm({ initialData, isEditing = false }: CenterFormProps) 
       // Limit file size to 2MB
       const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
       if (file.size > MAX_FILE_SIZE) {
-        setError('File size exceeds the 2MB limit. Please choose a smaller image.')
+        toast.error('File too large', { description: 'Please choose an image under 2MB.' })
         return
       }
 
-      setError('')
       setLogoFile(file)
 
       // Create a temporary local preview URL
       const objectUrl = URL.createObjectURL(file)
       setLogoUrl(objectUrl)
     } catch (err: any) {
-      setError('Error processing image.')
+      toast.error('Error processing image.')
     }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     setLoading(true)
 
     try {
@@ -120,6 +118,7 @@ export function CenterForm({ initialData, isEditing = false }: CenterFormProps) 
           .eq('id', initialData.id)
 
         if (error) throw error
+        toast.success('Institution updated successfully')
         router.push(`/admin/centers/${initialData.id}`)
       } else {
         const { error } = await supabase
@@ -127,10 +126,11 @@ export function CenterForm({ initialData, isEditing = false }: CenterFormProps) 
           .insert([payload])
 
         if (error) throw error
+        toast.success('Institution registered successfully')
         router.push('/admin/centers')
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to save center')
+      toast.error('Failed to save institution', { description: err.message || 'An unexpected error occurred.' })
       setUploadingLogo(false)
     } finally {
       setLoading(false)
@@ -139,12 +139,6 @@ export function CenterForm({ initialData, isEditing = false }: CenterFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
-          {error}
-        </div>
-      )}
 
       {/* Basic Information */}
       <div className="bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-6">

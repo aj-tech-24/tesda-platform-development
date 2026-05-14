@@ -27,7 +27,7 @@ const ACHIEVEMENTS = [
 ];
 
 export function Screensaver() {
-  const isIdle = useIdleTimeout(60000); // 1 minute idle time
+  const isIdle = useIdleTimeout(10000); // 1 minute idle time
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
 

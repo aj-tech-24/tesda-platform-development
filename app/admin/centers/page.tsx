@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeft, Trash2, Edit2, Plus, Search, Building2, MapPin, Mail, Phone, Filter, ChevronRight, BookOpen, Users, Layers } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { toast } from 'sonner'
 
 export default function AdminCentersPage() {
   const [centers, setCenters] = useState<any[]>([])
@@ -21,13 +21,12 @@ export default function AdminCentersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
   const [programCounts, setProgramCounts] = useState<Record<string, number>>({})
   const [trainerCounts, setTrainerCounts] = useState<Record<string, number>>({})
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => { checkAuth() }, [])
+  useEffect(() => { fetchCenters() }, [])
 
   useEffect(() => {
     let result = centers
@@ -48,15 +47,6 @@ export default function AdminCentersPage() {
   const totalPages = Math.ceil(filteredCenters.length / itemsPerPage)
   const paginatedCenters = filteredCenters.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
   const institutionTypes = Array.from(new Set(centers.map(c => c.institution_type).filter(Boolean))).sort()
-
-  async function checkAuth() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user || user.user_metadata?.is_admin !== true) { router.push('/admin/login'); return }
-      setUser(user)
-      await fetchCenters()
-    } catch { router.push('/admin/login') }
-  }
 
   async function fetchCenters() {
     try {
@@ -87,7 +77,8 @@ export default function AdminCentersPage() {
       const { error } = await supabase.from('institutions').delete().eq('id', id)
       if (error) throw error
       await fetchCenters()
-    } catch { alert('Failed to delete') }
+      toast.success('Institution deleted')
+    } catch { toast.error('Failed to delete institution') }
   }
 
   if (loading) {
@@ -103,33 +94,21 @@ export default function AdminCentersPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-background pb-12">
-      {/* Header */}
-      <div className="border-b border-border/40 sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-xl shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Link href="/admin/dashboard">
-                <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 hover:text-primary">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                  <Building2 className="w-6 h-6 text-primary" />
-                  Institutions
-                </h1>
-                <p className="text-sm text-muted-foreground">{filteredCenters.length} of {centers.length} institutions</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Link href="/admin/centers/new">
-                <Button className="gap-2 rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all">
-                  <Plus className="w-4 h-4" /> Add Institution
-                </Button>
-              </Link>
-            </div>
+      {/* Page Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-primary" />
+              Institutions
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">{filteredCenters.length} of {centers.length} institutions</p>
           </div>
+          <Link href="/admin/centers/new">
+            <Button className="gap-2 rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all">
+              <Plus className="w-4 h-4" /> Add Institution
+            </Button>
+          </Link>
         </div>
       </div>
 

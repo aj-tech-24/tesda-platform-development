@@ -12,6 +12,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+
+const programSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  qualification_level: z.string().min(1, 'Type is required'),
+  duration_hours: z.coerce.number().min(0, 'Duration must be positive'),
+  delivery_mode: z.string().optional(),
+  registration_no: z.string().optional(),
+  date_issued: z.string().optional(),
+  expiration_date: z.string().optional(),
+})
+type ProgramFormValues = z.infer<typeof programSchema>
 
 export default function AdminCenterDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -22,17 +38,15 @@ export default function AdminCenterDetailsPage({ params }: { params: Promise<{ i
   const [showTrainers, setShowTrainers] = useState(false)
 
   const [openAddProgram, setOpenAddProgram] = useState(false)
-  const [newProgram, setNewProgram] = useState({
-    title: '',
-    qualification_level: '',
-    duration_hours: '',
-    delivery_mode: '',
-    program_type: '',
-    registration_no: '',
-    date_issued: '',
-    expiration_date: ''
-  })
   const [submittingProgram, setSubmittingProgram] = useState(false)
+
+  const form = useForm<ProgramFormValues>({
+    resolver: zodResolver(programSchema),
+    defaultValues: {
+      title: '', qualification_level: '', duration_hours: 0,
+      delivery_mode: '', registration_no: '', date_issued: '', expiration_date: ''
+    }
+  })
 
   const router = useRouter()
   const supabase = createClient()
@@ -56,31 +70,51 @@ export default function AdminCenterDetailsPage({ params }: { params: Promise<{ i
     finally { setLoading(false) }
   }
 
-  async function handleAddProgram(e: React.FormEvent) {
-    e.preventDefault()
+  async function onSubmitProgram(values: ProgramFormValues) {
     setSubmittingProgram(true)
+    // --- Optimistic update: append program immediately ---
+    const optimisticProgram = {
+      id: `optimistic-${Date.now()}`,
+      institution_id: id,
+      title: values.title,
+      qualification_level: values.qualification_level,
+      duration_hours: values.duration_hours,
+      delivery_mode: values.delivery_mode,
+      registration_no: values.registration_no,
+      date_issued: values.date_issued || null,
+      expiration_date: values.expiration_date || null,
+      created_at: new Date().toISOString(),
+    }
+    setPrograms(prev => [optimisticProgram, ...prev])
+    setOpenAddProgram(false)
+    form.reset()
+    // -----------------------------------------------------
     try {
-      const { error } = await supabase.from('programs').insert({
+      const { data, error } = await supabase.from('programs').insert({
         institution_id: id,
-        title: newProgram.title,
-        qualification_level: newProgram.qualification_level,
-        duration_hours: Number(newProgram.duration_hours) || 0,
-        delivery_mode: newProgram.delivery_mode,
-        registration_no: newProgram.registration_no,
-        date_issued: newProgram.date_issued || null,
-        expiration_date: newProgram.expiration_date || null
-      })
+        title: values.title,
+        qualification_level: values.qualification_level,
+        duration_hours: values.duration_hours,
+        delivery_mode: values.delivery_mode,
+        registration_no: values.registration_no,
+        date_issued: values.date_issued || null,
+        expiration_date: values.expiration_date || null
+      }).select().single()
       if (error) throw error
-      setOpenAddProgram(false)
-      setNewProgram({ title: '', qualification_level: '', duration_hours: '', delivery_mode: '', program_type: '', registration_no: '', date_issued: '', expiration_date: '' })
-      fetchData() // Refresh list
-    } catch (err) {
+      // Replace optimistic record with real one from DB
+      setPrograms(prev => prev.map(p => p.id === optimisticProgram.id ? data : p))
+      toast.success('Program added successfully')
+    } catch (err: any) {
+      // Revert optimistic update on failure
+      setPrograms(prev => prev.filter(p => p.id !== optimisticProgram.id))
+      setOpenAddProgram(true)
       console.error(err)
-      alert('Error adding program')
+      toast.error('Failed to add program', { description: err.message || 'Please check your inputs.' })
     } finally {
       setSubmittingProgram(false)
     }
   }
+
 
   const regularTrainers = trainers.filter(t => t.employment_type === 'Regular')
   const onCallTrainers = trainers.filter(t => t.employment_type !== 'Regular')
@@ -284,7 +318,10 @@ export default function AdminCenterDetailsPage({ params }: { params: Promise<{ i
                 <p className="text-xs text-muted-foreground font-medium">{programs.length} program{programs.length !== 1 ? 's' : ''} registered</p>
               </div>
             </div>
-            <Dialog open={openAddProgram} onOpenChange={setOpenAddProgram}>
+            <Dialog open={openAddProgram} onOpenChange={(open) => {
+              if (open) form.reset()
+              setOpenAddProgram(open)
+            }}>
               <DialogTrigger asChild>
                 <Button className="gap-2 rounded-full shadow-sm bg-blue-600 hover:bg-blue-700 text-white text-sm">
                   <Plus className="w-4 h-4" /> Add Program
@@ -294,64 +331,102 @@ export default function AdminCenterDetailsPage({ params }: { params: Promise<{ i
                 <DialogHeader>
                   <DialogTitle>Register New Program</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleAddProgram} className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted-foreground uppercase">Program Title</label>
-                    <Input required value={newProgram.title} onChange={e => setNewProgram({ ...newProgram, title: e.target.value })} placeholder="e.g. Computer Systems Servicing NC II" className="focus-visible:ring-blue-500/20" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground uppercase">TYPE (WTR/NTR/MTP/COC)</label>
-                      <Select value={newProgram.qualification_level || undefined} onValueChange={v => setNewProgram({ ...newProgram, qualification_level: v })}>
-                        <SelectTrigger className="w-full focus:ring-blue-500/20"><SelectValue placeholder="Select type" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="WTR">WTR</SelectItem>
-                          <SelectItem value="NTR">NTR</SelectItem>
-                          <SelectItem value="MTP">MTP</SelectItem>
-                          <SelectItem value="COC">COC</SelectItem>
-                        </SelectContent>
-                      </Select>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmitProgram)} className="space-y-4 mt-4">
+                    <FormField control={form.control} name="title" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold text-muted-foreground uppercase">Program Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Computer Systems Servicing NC II" className="focus-visible:ring-blue-500/20" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField control={form.control} name="qualification_level" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-muted-foreground uppercase">TYPE (WTR/NTR/MTP/COC)</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="w-full focus:ring-blue-500/20"><SelectValue placeholder="Select type" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="WTR">WTR</SelectItem>
+                              <SelectItem value="NTR">NTR</SelectItem>
+                              <SelectItem value="MTP">MTP</SelectItem>
+                              <SelectItem value="COC">COC</SelectItem>
+                              <SelectItem value="RTP">RTP</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="duration_hours" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-muted-foreground uppercase">Duration (Hours)</FormLabel>
+                          <FormControl>
+                            <Input type="number" className="focus-visible:ring-blue-500/20" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground uppercase">Duration (Hours)</label>
-                      <Input type="number" value={newProgram.duration_hours} onChange={e => setNewProgram({ ...newProgram, duration_hours: e.target.value })} placeholder="e.g. 280" className="focus-visible:ring-blue-500/20" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField control={form.control} name="delivery_mode" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-muted-foreground uppercase">Delivery Mode</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="w-full focus:ring-blue-500/20"><SelectValue placeholder="Select mode" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Institution-based">Institution-based</SelectItem>
+                              <SelectItem value="Enterprise-based">Enterprise-based</SelectItem>
+                              <SelectItem value="Community-based">Community-based</SelectItem>
+                              <SelectItem value="Online/Blended">Online/Blended</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="registration_no" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-muted-foreground uppercase">Registration Number (CoPR)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g. 20230102030" className="focus-visible:ring-blue-500/20" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground uppercase">Delivery Mode</label>
-                      <Select value={newProgram.delivery_mode || undefined} onValueChange={v => setNewProgram({ ...newProgram, delivery_mode: v })}>
-                        <SelectTrigger className="w-full focus:ring-blue-500/20"><SelectValue placeholder="Select mode" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Institution-based">Institution-based</SelectItem>
-                          <SelectItem value="Enterprise-based">Enterprise-based</SelectItem>
-                          <SelectItem value="Community-based">Community-based</SelectItem>
-                          <SelectItem value="Online/Blended">Online/Blended</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField control={form.control} name="date_issued" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-muted-foreground uppercase">Date Issued</FormLabel>
+                          <FormControl>
+                            <Input type="date" className="focus-visible:ring-blue-500/20" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="expiration_date" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-bold text-muted-foreground uppercase">Expiration Date</FormLabel>
+                          <FormControl>
+                            <Input type="date" className="focus-visible:ring-blue-500/20" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground uppercase">Registration Number (CoPR)</label>
-                      <Input value={newProgram.registration_no} onChange={e => setNewProgram({ ...newProgram, registration_no: e.target.value })} placeholder="e.g. 20230102030" className="focus-visible:ring-blue-500/20" />
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-border/50">
+                      <Button type="button" variant="outline" onClick={() => setOpenAddProgram(false)}>Cancel</Button>
+                      <Button type="submit" disabled={submittingProgram} className="bg-blue-600 hover:bg-blue-700 text-white">
+                        {submittingProgram ? 'Saving...' : 'Save Program'}
+                      </Button>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground uppercase">Date Issued</label>
-                      <Input type="date" value={newProgram.date_issued} onChange={e => setNewProgram({ ...newProgram, date_issued: e.target.value })} className="focus-visible:ring-blue-500/20" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground uppercase">Expiration Date</label>
-                      <Input type="date" value={newProgram.expiration_date} onChange={e => setNewProgram({ ...newProgram, expiration_date: e.target.value })} className="focus-visible:ring-blue-500/20" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-border/50">
-                    <Button type="button" variant="outline" onClick={() => setOpenAddProgram(false)}>Cancel</Button>
-                    <Button type="submit" disabled={submittingProgram} className="bg-blue-600 hover:bg-blue-700 text-white">
-                      {submittingProgram ? 'Saving...' : 'Save Program'}
-                    </Button>
-                  </div>
-                </form>
+                  </form>
+                </Form>
               </DialogContent>
             </Dialog>
           </div>

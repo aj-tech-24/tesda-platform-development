@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeft, Trash2, Edit2, Plus, Search, BookOpen, Clock, BarChart, FileText, Building2, ExternalLink, Filter } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { toast } from 'sonner'
 
 export default function AdminProgramsPage() {
   const [groupedPrograms, setGroupedPrograms] = useState<any[]>([])
@@ -23,12 +23,11 @@ export default function AdminProgramsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    checkAuth()
+    fetchPrograms()
   }, [])
 
   useEffect(() => {
@@ -58,20 +57,6 @@ export default function AdminProgramsPage() {
   )
 
   const qualificationLevels = Array.from(new Set(groupedPrograms.map(p => p.qualification_level).filter(Boolean))).sort()
-
-  async function checkAuth() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user || user.user_metadata?.is_admin !== true) {
-        router.push('/admin/login')
-        return
-      }
-      setUser(user)
-      await fetchPrograms()
-    } catch (error) {
-      router.push('/admin/login')
-    }
-  }
 
   async function fetchPrograms() {
     try {
@@ -123,9 +108,10 @@ export default function AdminProgramsPage() {
       
       await fetchPrograms()
       setSelectedProgram(null) // Close modal as data changed
+      toast.success('Program deleted')
     } catch (error) {
       console.error('Error deleting program:', error)
-      alert('Failed to delete program')
+      toast.error('Failed to delete program')
     }
   }
 
@@ -142,34 +128,22 @@ export default function AdminProgramsPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-background pb-12">
-      {/* Header */}
-      <div className="border-b border-border/40 sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-xl shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Link href="/admin/dashboard">
-                <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                  <BookOpen className="w-6 h-6 text-primary" />
-                  Program Directory
-                </h1>
-                <p className="text-sm text-muted-foreground">Master list of all distinct programs and their accredited institutions.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Link href="/admin/programs/new">
-                <Button className="gap-2 rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all">
-                  <Plus className="w-4 h-4" />
-                  Add New Program
-                </Button>
-              </Link>
-            </div>
+      {/* Page Header */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <BookOpen className="w-6 h-6 text-primary" />
+              Program Directory
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">Master list of all distinct programs and their accredited institutions.</p>
           </div>
+          <Link href="/admin/programs/new">
+            <Button className="gap-2 rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all">
+              <Plus className="w-4 h-4" />
+              Add New Program
+            </Button>
+          </Link>
         </div>
       </div>
 

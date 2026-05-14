@@ -2,8 +2,8 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect, useState, useMemo } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,33 +30,34 @@ function getExpiryStatus(dateStr: string | null) {
   }
 }
 
-export default function RegistryPage() {
+function RegistryContent() {
   const [records, setRecords] = useState<any[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 30
-
+  
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
+  const searchQuery = searchParams.get('q') || ''
+  const currentPage = parseInt(searchParams.get('page') || '1')
+  const itemsPerPage = 30
 
-  async function checkAuth() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user || user.user_metadata?.is_admin !== true) {
-        router.push('/admin/login')
-        return
-      }
-      await fetchRegistry()
-    } catch (error) {
-      router.push('/admin/login')
+  const updateURL = (query: string, page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (query) {
+      params.set('q', query)
+    } else {
+      params.delete('q')
     }
+    params.set('page', page.toString())
+    router.replace(`${pathname}?${params.toString()}`)
   }
+
+  useEffect(() => {
+    fetchRegistry()
+  }, [])
 
   async function fetchRegistry() {
     try {
@@ -129,10 +130,9 @@ export default function RegistryPage() {
                   type="text"
                   placeholder="Search SMAW, Bulacan, Juan..."
                   className="pl-9 pr-4 py-2 bg-secondary/50 border-transparent focus-visible:ring-primary/20 rounded-full"
-                  value={searchQuery}
+                  defaultValue={searchQuery}
                   onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setCurrentPage(1)
+                    updateURL(e.target.value, 1)
                   }}
                 />
               </div>
@@ -225,7 +225,7 @@ export default function RegistryPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => updateURL(searchQuery, Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                   className="rounded-full px-4"
                 >
@@ -237,7 +237,7 @@ export default function RegistryPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => updateURL(searchQuery, Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   className="rounded-full px-4"
                 >
@@ -381,3 +381,4 @@ export default function RegistryPage() {
     </div>
   )
 }
+export default function RegistryPage() { return <Suspense fallback={<div>Loading...</div>}><RegistryContent /></Suspense> }
