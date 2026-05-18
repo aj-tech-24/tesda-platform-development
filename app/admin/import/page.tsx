@@ -18,7 +18,7 @@ export default function ImportPage() {
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [isAuthLoading, setIsAuthLoading] = useState(true)
-  const [importType, setImportType] = useState<'registry' | 'assessment'>('registry')
+  const [importType, setImportType] = useState<'registry' | 'assessment' | 'assessor'>('registry')
   const router = useRouter()
   const supabase = createClient()
 
@@ -59,7 +59,12 @@ export default function ImportPage() {
     formData.append('file', file)
 
     try {
-      const endpoint = importType === 'assessment' ? '/api/import/assessment' : '/api/import'
+      let endpoint = '/api/import'
+      if (importType === 'assessment') {
+        endpoint = '/api/import/assessment'
+      } else if (importType === 'assessor') {
+        endpoint = '/api/import/assessor'
+      }
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
@@ -136,11 +141,12 @@ export default function ImportPage() {
                 <SelectContent className="rounded-xl">
                   <SelectItem value="registry" className="py-2.5 rounded-lg">Institutions, Programs & Trainers Registry</SelectItem>
                   <SelectItem value="assessment" className="py-2.5 rounded-lg">Assessment Centers & Accreditations</SelectItem>
+                  <SelectItem value="assessor" className="py-2.5 rounded-lg">Assessors & Accreditations</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {importType === 'registry' ? (
+            {importType === 'registry' && (
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50">
                 <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Expected Columns Include:</h4>
                 <p className="text-sm text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
@@ -149,11 +155,20 @@ export default function ImportPage() {
                   <span className="font-semibold text-blue-900 dark:text-blue-200">Trainers:</span> Trainer, NTTC No., Validity.
                 </p>
               </div>
-            ) : (
+            )}
+            {importType === 'assessment' && (
               <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
                 <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">Expected Columns Include:</h4>
                 <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80 leading-relaxed font-mono text-xs">
                   Region | PROVINCE | ASSESSMENT CENTER | ADDRESS | LONGITUDE | LATITUDE | CENTER MANAGER | TEL. NO. | SECTOR | QUALIFICATION TITLE | ACCREDITATION NUMBER | DATE ACCREDITED | VALID UNTIL | Status
+                </p>
+              </div>
+            )}
+            {importType === 'assessor' && (
+              <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-100 dark:border-violet-900/50">
+                <h4 className="text-sm font-semibold text-violet-800 dark:text-violet-300 mb-2">Expected Columns Include:</h4>
+                <p className="text-sm text-violet-700/80 dark:text-violet-300/80 leading-relaxed font-mono text-xs">
+                  REGION | PROVINCE | NAME | ADDRESS | SECTOR | QUALIFICATION TITLE | DATE OF ACCREDITATION | VALID UNTIL | Status
                 </p>
               </div>
             )}
@@ -199,7 +214,7 @@ export default function ImportPage() {
                 </div>
                 <p className="text-emerald-800/80 dark:text-emerald-300/80 text-sm">{result.message}</p>
 
-                {result.stats && result.stats.centers !== undefined ? (
+                {result.stats && result.stats.centers !== undefined && (
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-emerald-200 dark:border-emerald-900/50">
                     <div className="text-center">
                       <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.centers}</div>
@@ -210,7 +225,22 @@ export default function ImportPage() {
                       <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Accreditations</div>
                     </div>
                   </div>
-                ) : (
+                )}
+
+                {result.stats && result.stats.assessors !== undefined && (
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-emerald-200 dark:border-emerald-900/50">
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.assessors}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Assessors</div>
+                    </div>
+                    <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.accreditations}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Accreditations</div>
+                    </div>
+                  </div>
+                )}
+
+                {result.stats && result.stats.institutions !== undefined && (
                   <div className="grid grid-cols-4 gap-4 pt-4 border-t border-emerald-200 dark:border-emerald-900/50">
                     <div className="text-center">
                       <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.institutions}</div>

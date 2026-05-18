@@ -5,7 +5,7 @@ import * as xlsx from 'xlsx'
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    
+
     // Authenticate
     const { data: { user } } = await supabase.auth.getUser()
     if (!user || user.user_metadata?.is_admin !== true) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     const formData = await request.formData()
     const file = formData.get('file') as File
-    
+
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
@@ -22,13 +22,13 @@ export async function POST(request: Request) {
     // Read the file buffer
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
-    
+
     // Parse the Excel/CSV
     const workbook = xlsx.read(buffer, { type: 'buffer' })
     const sheetName = workbook.SheetNames[0]
     const sheet = workbook.Sheets[sheetName]
     const rawData = xlsx.utils.sheet_to_json(sheet)
-    
+
     let importedInstitutions = 0;
     let importedPrograms = 0;
     let importedTrainers = 0;
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
           })
           .select('id')
           .single()
-        
+
         if (instError) throw new Error(`Institution Insert Error: ${instError.message}`)
         institutionId = newInst.id
         importedInstitutions++;
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
               nttc_validity: nttcVal,
               specialization: row['Specialization'] || progName || 'General',
             })
-          
+
           if (trainerError) throw new Error(`Trainer Insert Error: ${trainerError.message}`)
           importedTrainers++;
         }
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
 
         if (!existingCompliance) {
           const dateReported = parseExcelDate(row['Date Reported to CO'] || row['Reported to CO'])
-          
+
           const { error: compError } = await supabase
             .from('compliance_records')
             .insert({
@@ -169,7 +169,7 @@ export async function POST(request: Request) {
               date_reported: dateReported,
               remarks: row['Remarks'] || row['TYPE of REPORT'] || row['New Issuance / Re-Issuance'] || null
             })
-          
+
           if (compError) throw new Error(`Compliance Insert Error: ${compError.message}`)
           importedCompliance++;
         }
@@ -196,10 +196,10 @@ function parseExcelDate(dateVal: any) {
     const date = new Date(Math.round((dateVal - 25569) * 86400 * 1000));
     return date.toISOString().split('T')[0]
   }
-  
+
   // Try to parse string
   const d = new Date(dateVal)
   if (!isNaN(d.getTime())) return d.toISOString().split('T')[0]
-  
+
   return null
 }
