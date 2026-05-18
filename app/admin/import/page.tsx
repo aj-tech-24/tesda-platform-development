@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { ArrowLeft, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
 
 export default function ImportPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -16,6 +18,7 @@ export default function ImportPage() {
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [isAuthLoading, setIsAuthLoading] = useState(true)
+  const [importType, setImportType] = useState<'registry' | 'assessment'>('registry')
   const router = useRouter()
   const supabase = createClient()
 
@@ -56,7 +59,8 @@ export default function ImportPage() {
     formData.append('file', file)
 
     try {
-      const response = await fetch('/api/import', {
+      const endpoint = importType === 'assessment' ? '/api/import/assessment' : '/api/import'
+      const response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
       })
@@ -122,14 +126,37 @@ export default function ImportPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50">
-              <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Expected Columns Include:</h4>
-              <p className="text-sm text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
-                <span className="font-semibold text-blue-900 dark:text-blue-200">Institutions:</span> NAME OF INSTITUTION, PROVINCE, ADDRESS, TEL. NO., E-mail Address, TYPE OF INSTITUTION.<br />
-                <span className="font-semibold text-blue-900 dark:text-blue-200">Programs:</span> COURSE/REGISTERED PROGRAM, Qualification Code, DURATION, EXPIRATION DATE, DELIVERY MODE.<br />
-                <span className="font-semibold text-blue-900 dark:text-blue-200">Trainers:</span> Trainer, NTTC No., Validity.
-              </p>
+            {/* Import Type Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Select Import Type</label>
+              <Select value={importType} onValueChange={(val: any) => { setImportType(val); setResult(null); setError(''); }}>
+                <SelectTrigger className="w-full border-border bg-white dark:bg-background shadow-sm rounded-xl py-6 focus:ring-emerald-500/20">
+                  <SelectValue placeholder="Select import type" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="registry" className="py-2.5 rounded-lg">Institutions, Programs & Trainers Registry</SelectItem>
+                  <SelectItem value="assessment" className="py-2.5 rounded-lg">Assessment Centers & Accreditations</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {importType === 'registry' ? (
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Expected Columns Include:</h4>
+                <p className="text-sm text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
+                  <span className="font-semibold text-blue-900 dark:text-blue-200">Institutions:</span> NAME OF INSTITUTION, PROVINCE, ADDRESS, TEL. NO., E-mail Address, TYPE OF INSTITUTION.<br />
+                  <span className="font-semibold text-blue-900 dark:text-blue-200">Programs:</span> COURSE/REGISTERED PROGRAM, Qualification Code, DURATION, EXPIRATION DATE, DELIVERY MODE.<br />
+                  <span className="font-semibold text-blue-900 dark:text-blue-200">Trainers:</span> Trainer, NTTC No., Validity.
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
+                <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">Expected Columns Include:</h4>
+                <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80 leading-relaxed font-mono text-xs">
+                  Region | PROVINCE | ASSESSMENT CENTER | ADDRESS | LONGITUDE | LATITUDE | CENTER MANAGER | TEL. NO. | SECTOR | QUALIFICATION TITLE | ACCREDITATION NUMBER | DATE ACCREDITED | VALID UNTIL | Status
+                </p>
+              </div>
+            )}
 
             <div className="border-2 border-dashed border-border rounded-xl p-8 text-center bg-secondary/20 hover:bg-secondary/40 transition-colors relative">
               <input
@@ -172,24 +199,37 @@ export default function ImportPage() {
                 </div>
                 <p className="text-emerald-800/80 dark:text-emerald-300/80 text-sm">{result.message}</p>
 
-                <div className="grid grid-cols-4 gap-4 pt-4 border-t border-emerald-200 dark:border-emerald-900/50">
-                  <div className="text-center">
-                    <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.institutions}</div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Institutions</div>
+                {result.stats && result.stats.centers !== undefined ? (
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-emerald-200 dark:border-emerald-900/50">
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.centers}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Assessment Centers</div>
+                    </div>
+                    <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.accreditations}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Accreditations</div>
+                    </div>
                   </div>
-                  <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
-                    <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.programs}</div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Programs</div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-4 pt-4 border-t border-emerald-200 dark:border-emerald-900/50">
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.institutions}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Institutions</div>
+                    </div>
+                    <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.programs}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Programs</div>
+                    </div>
+                    <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.trainers}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Trainers</div>
+                    </div>
+                    <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.compliance || 0}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Compliance</div>
+                    </div>
                   </div>
-                  <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
-                    <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.trainers}</div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Trainers</div>
-                  </div>
-                  <div className="text-center border-l border-emerald-200 dark:border-emerald-900/50">
-                    <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{result.stats.compliance || 0}</div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">Compliance</div>
-                  </div>
-                </div>
+                )}
               </div>
             )}
           </CardContent>
