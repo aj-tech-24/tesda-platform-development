@@ -26,9 +26,11 @@ interface Assessor {
 
 interface AssessorsListProps {
   initialAssessors: Assessor[]
+  addButtonText?: string
+  addButtonHref?: string
 }
 
-export function AssessorsList({ initialAssessors }: AssessorsListProps) {
+export function AssessorsList({ initialAssessors, addButtonText, addButtonHref }: AssessorsListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
 
@@ -95,9 +97,16 @@ export function AssessorsList({ initialAssessors }: AssessorsListProps) {
                 </select>
               )}
             </div>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground shrink-0">
-              <Filter className="w-4 h-4" />
-              <span>Showing <span className="font-semibold text-foreground">{filtered.length}</span> of {initialAssessors.length} assessors</span>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground justify-end shrink-0">
+              {addButtonHref ? (
+                <Link href={addButtonHref} className="order-1 sm:order-none">
+                  <Button className="rounded-full" size="sm">{addButtonText || 'Add'}</Button>
+                </Link>
+              ) : null}
+              <div className="inline-flex items-center gap-3">
+                <Filter className="w-4 h-4" />
+                <span>Showing <span className="font-semibold text-foreground">{filtered.length}</span> of {initialAssessors.length} assessors</span>
+              </div>
             </div>
           </div>
 

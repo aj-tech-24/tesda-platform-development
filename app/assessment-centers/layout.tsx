@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Assessment Centers | TESDA',
-  description: 'Find TESDA-accredited assessment centers and the qualifications they can assess.',
+  description: 'Browse TESDA-accredited assessment centers and their offered qualifications.',
   openGraph: {
     title: 'Assessment Centers | TESDA',
-    description: 'Find TESDA-accredited assessment centers and their qualification accreditations.',
+    description: 'Browse TESDA-accredited assessment centers and their qualifications.',
     type: 'website',
   },
 }

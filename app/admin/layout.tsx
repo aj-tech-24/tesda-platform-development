@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { Shield, Activity, Building2, Users, Search, Settings, FileSpreadsheet, LogOut, BookOpen } from 'lucide-react'
+import { Shield, Activity, Building2, Users, User, Layers, Search, Settings, FileSpreadsheet, LogOut, BookOpen } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 
@@ -69,6 +69,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Institutions', icon: Building2, path: '/admin/centers' },
     { label: 'Programs', icon: BookOpen, path: '/admin/programs' },
     { label: 'Trainers', icon: Users, path: '/admin/trainers' },
+    { label: 'Assessment Centers', icon: Layers, path: '/admin/assessment' },
+    { label: 'Assessors', icon: User, path: '/admin/assessors' },
     { label: 'Registry', icon: Search, path: '/admin/registry' },
   ]
 

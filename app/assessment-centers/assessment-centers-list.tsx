@@ -71,7 +71,7 @@ export function AssessmentCentersList({ initialCenters }: AssessmentCentersListP
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Assessment Centers</h1>
-              <p className="text-muted-foreground max-w-xl">Browse TESDA-accredited assessment centers and review their qualification accreditations.</p>
+              <p className="text-muted-foreground max-w-xl">Browse TESDA-accredited assessment centers and view qualifications.</p>
             </div>
           </div>
         </div>
