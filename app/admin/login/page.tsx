@@ -3,14 +3,12 @@
 export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, ArrowLeft, Award, Shield, Eye, EyeOff } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -18,8 +16,6 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -27,22 +23,21 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       })
 
-      if (authError) throw authError
+      const data = await response.json()
 
-      // Check if user is admin
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user?.user_metadata?.is_admin !== true) {
-        setError('You do not have admin access.')
-        await supabase.auth.signOut()
-        return
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to login')
       }
 
-      router.push('/admin/dashboard')
+      window.location.assign('/admin/dashboard')
     } catch (err: any) {
       setError(err.message || 'Failed to login')
     } finally {
@@ -53,7 +48,7 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/5" />
       <div className="absolute inset-0 dot-pattern opacity-30" />
       <div className="absolute top-20 right-[10%] w-72 h-72 bg-primary/8 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-[5%] w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
@@ -68,10 +63,10 @@ export default function AdminLoginPage() {
 
         <Card className="border border-border/50 shadow-2xl shadow-primary/5 overflow-hidden">
           {/* Top gradient bar */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-primary" />
+          <div className="h-1.5 w-full bg-linear-to-r from-primary via-accent to-primary" />
           
           <CardHeader className="space-y-4 text-center pt-8 pb-2">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-linear-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25">
               <Shield className="w-8 h-8 text-white" />
             </div>
             <div className="space-y-1">
@@ -128,7 +123,7 @@ export default function AdminLoginPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/20 transition-all text-base font-semibold" 
+                className="w-full h-12 rounded-xl bg-linear-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/20 transition-all text-base font-semibold"
                 disabled={loading}
               >
                 {loading ? (

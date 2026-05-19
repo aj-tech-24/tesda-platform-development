@@ -112,12 +112,12 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-[1800px] mx-auto w-full h-full">
+    <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-450 mx-auto w-full h-full">
 
         {/* Welcome Banner + Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
           {/* Welcome */}
-          <div className="col-span-1 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div className="col-span-1 bg-linear-to-br from-blue-700 via-blue-800 to-indigo-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
             <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/5 blur-xl" />
             <div className="absolute right-4 bottom-4 opacity-5">
               <Shield className="w-24 h-24" />
@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
               </div>
               {sectorData.length > 0 ? (
                 <div className="flex flex-col items-center flex-1 overflow-y-auto min-h-0 pr-1">
-                  <div className="w-full h-[200px] shrink-0">
+                  <div className="w-full h-50 shrink-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie data={sectorData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" stroke="none">
@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
                   <span className="text-xs font-bold uppercase tracking-wider text-foreground">New Programs</span>
                 </div>
                 <Select value={recentProgramsFilter} onValueChange={setRecentProgramsFilter} disabled={loadingRecentPrograms}>
-                  <SelectTrigger className="h-7 w-[100px] text-[10px] uppercase font-bold tracking-wider rounded-full bg-white dark:bg-background shadow-sm border-border">
+                  <SelectTrigger className="h-7 w-25 text-[10px] uppercase font-bold tracking-wider rounded-full bg-white dark:bg-background shadow-sm border-border">
                     <SelectValue placeholder="Filter" />
                   </SelectTrigger>
                   <SelectContent>
@@ -227,8 +227,8 @@ export default function AdminDashboardPage() {
                 {recentPrograms.length > 0 ? (
                   <div className="divide-y divide-border/30">
                     {recentPrograms.map((prog) => (
-                      <Link href={`/admin/programs`} key={prog.id} className="p-3.5 hover:bg-secondary/30 transition-colors flex items-center gap-3 group cursor-pointer block">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 text-white shadow-sm">
+                      <Link href={`/admin/programs`} key={prog.id} className="p-3.5 hover:bg-secondary/30 transition-colors flex items-center gap-3 group cursor-pointer">
+                        <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 text-white shadow-sm">
                           <BookOpen className="w-4 h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -271,7 +271,7 @@ export default function AdminDashboardPage() {
                 {expiringPrograms.length > 0 ? (
                   <div className="divide-y divide-border/30">
                     {expiringPrograms.map((prog) => (
-                      <Link href={`/admin/centers/${prog.institution_id}`} key={prog.id} className="p-3.5 hover:bg-amber-50/30 dark:hover:bg-amber-950/10 transition-colors flex items-start gap-3 group cursor-pointer block">
+                      <Link href={`/admin/centers/${prog.institution_id}`} key={prog.id} className="p-3.5 hover:bg-amber-50/30 dark:hover:bg-amber-950/10 transition-colors flex items-start gap-3 group cursor-pointer">
                         <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-amber-50 text-amber-600">
                           <BookOpen className="w-4 h-4" />
                         </div>

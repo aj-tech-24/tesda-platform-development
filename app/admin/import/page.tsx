@@ -159,7 +159,7 @@ export default function ImportPage() {
             {importType === 'assessment' && (
               <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
                 <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">Expected Columns Include:</h4>
-                <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80 leading-relaxed font-mono text-xs">
+                <p className="text-emerald-700/80 dark:text-emerald-300/80 leading-relaxed font-mono text-xs">
                   Region | PROVINCE | ASSESSMENT CENTER | ADDRESS | LONGITUDE | LATITUDE | CENTER MANAGER | TEL. NO. | SECTOR | QUALIFICATION TITLE | ACCREDITATION NUMBER | DATE ACCREDITED | VALID UNTIL | Status
                 </p>
               </div>
@@ -167,7 +167,7 @@ export default function ImportPage() {
             {importType === 'assessor' && (
               <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-100 dark:border-violet-900/50">
                 <h4 className="text-sm font-semibold text-violet-800 dark:text-violet-300 mb-2">Expected Columns Include:</h4>
-                <p className="text-sm text-violet-700/80 dark:text-violet-300/80 leading-relaxed font-mono text-xs">
+                <p className="text-xs text-violet-700/80 dark:text-violet-300/80 leading-relaxed font-mono">
                   REGION | PROVINCE | NAME | ADDRESS | SECTOR | QUALIFICATION TITLE | DATE OF ACCREDITATION | VALID UNTIL | Status
                 </p>
               </div>
@@ -267,7 +267,7 @@ export default function ImportPage() {
             <Button
               onClick={handleImport}
               disabled={!file || loading}
-              className="gap-2 shadow-md min-w-[140px]"
+              className="gap-2 shadow-md min-w-35"
             >
               {loading ? (
                 <>

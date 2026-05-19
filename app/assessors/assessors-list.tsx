@@ -99,7 +99,7 @@ export function AssessorsList({ initialAssessors, addButtonText, addButtonHref }
             </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground justify-end shrink-0">
               {addButtonHref ? (
-                <Link href={addButtonHref} className="order-1 sm:order-none">
+                <Link href={addButtonHref} className="order-1 sm:order-0">
                   <Button className="rounded-full" size="sm">{addButtonText || 'Add'}</Button>
                 </Link>
               ) : null}

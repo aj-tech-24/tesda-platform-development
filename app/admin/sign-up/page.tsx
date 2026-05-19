@@ -40,9 +40,7 @@ export default function AdminSignUpPage() {
           data: {
             is_admin: true,
           },
-          emailRedirectTo:
-            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-            `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
@@ -60,7 +58,7 @@ export default function AdminSignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-b from-background to-secondary/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Link href="/" className="inline-flex mb-8">
           <Button variant="ghost" size="sm" className="gap-2">

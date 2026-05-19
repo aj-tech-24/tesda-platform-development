@@ -21,13 +21,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Skip auth check and layout for login and signup pages
   const isAuthPage = pathname === '/admin/login' || pathname === '/admin/sign-up'
 
+  if (isAuthPage) {
+    return <>{children}</>
+  }
+
   useEffect(() => {
-    if (!isAuthPage) {
-      checkAuth()
-    } else {
-      setLoading(false)
-    }
-  }, [pathname, isAuthPage])
+    checkAuth()
+  }, [pathname])
 
   async function checkAuth() {
     try {
@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="h-14 border-b border-border/40 shrink-0 bg-white dark:bg-card px-4 sm:px-6 flex items-center justify-between shadow-sm z-10">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md">
+            <div className="w-7 h-7 rounded-lg bg-linear-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md">
               <Shield className="w-3.5 h-3.5 text-white" />
             </div>
             <h1 className="text-sm font-black tracking-tight text-foreground uppercase hidden sm:block">TESDA PO Davao Del Sur</h1>
