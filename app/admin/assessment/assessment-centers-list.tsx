@@ -81,7 +81,7 @@ export function AssessmentCentersList({ initialCenters, addButtonText, addButton
             </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground justify-end shrink-0">
               {addButtonHref ? (
-                <Link href={addButtonHref} className="order-1 sm:order-none">
+                <Link href={addButtonHref}>
                   <Button className="rounded-full" size="sm">{addButtonText || 'Add'}</Button>
                 </Link>
               ) : null}
@@ -93,11 +93,12 @@ export function AssessmentCentersList({ initialCenters, addButtonText, addButton
           </div>
 
           {filtered.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
               {filtered.map((center, index) => (
-                <Card key={center.id} className="card-lift border-border/50 hover:border-violet-300/50 overflow-hidden group animate-fade-in-up" style={{ opacity: 0, animationDelay: `${Math.min(index * 0.04, 0.3)}s` }}>
-                  <CardContent className="p-6 space-y-5">
-                    <div className="flex items-start gap-4">
+                <Link key={center.id} href={`/admin/assessment/${center.id}`} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 rounded-2xl">
+                  <Card className="card-lift border-border/50 hover:border-violet-300/50 overflow-hidden group animate-fade-in-up h-fit self-start" style={{ opacity: 0, animationDelay: `${Math.min(index * 0.04, 0.3)}s` }}>
+                    <CardContent className="p-6 space-y-5">
+                      <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shrink-0">
                         {center.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                       </div>
@@ -141,20 +142,15 @@ export function AssessmentCentersList({ initialCenters, addButtonText, addButton
                         </div>
                       )}
                     </div>
-
                     <div className="pt-2 border-t border-border/60 space-y-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                          <Building2 className="w-4 h-4 text-violet-600" />
-                          Details
-                        </div>
-                        <Link href={`/admin/assessment/${center.id}`}>
-                          <Button variant="ghost" size="sm">View</Button>
-                        </Link>
+                      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Building2 className="w-4 h-4 text-violet-600" />
+                        Open center details
                       </div>
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
           ) : (

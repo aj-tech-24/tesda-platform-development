@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
+import { getAdminRole } from '@/lib/admin-role'
 
 export async function POST(request: Request) {
   try {
@@ -42,6 +43,12 @@ export async function POST(request: Request) {
     if (user?.user_metadata?.is_admin !== true) {
       await supabase.auth.signOut()
       return NextResponse.json({ error: 'You do not have admin access.' }, { status: 403 })
+    }
+
+    const role = getAdminRole(user)
+    if (!role) {
+      await supabase.auth.signOut()
+      return NextResponse.json({ error: 'Admin role is not configured for this account.' }, { status: 403 })
     }
 
     return response

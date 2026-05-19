@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { inferAdminRoleFromEmail } from '@/lib/admin-role'
 
 export default function AdminSignUpPage() {
   const [email, setEmail] = useState('')
@@ -33,12 +34,15 @@ export default function AdminSignUpPage() {
     setLoading(true)
 
     try {
+      const role = inferAdminRoleFromEmail(email) || 'admin'
+
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             is_admin: true,
+            admin_role: role,
           },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },

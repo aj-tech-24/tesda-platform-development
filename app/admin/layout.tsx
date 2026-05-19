@@ -10,9 +10,11 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Shield, Activity, Building2, Users, User, Layers, Search, Settings, FileSpreadsheet, LogOut, BookOpen } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
+import { canAccessAdminPath, getAdminRole, type AdminRole } from '@/lib/admin-role'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null)
+  const [adminRole, setAdminRole] = useState<AdminRole | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
@@ -36,6 +38,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.push('/admin/login')
         return
       }
+
+      const role = getAdminRole(user)
+      if (!canAccessAdminPath(role, pathname)) {
+        router.push('/admin/dashboard')
+        return
+      }
+
+      setAdminRole(role)
       setUser(user)
     } catch {
       router.push('/admin/login')
@@ -66,13 +76,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     { label: 'Dashboard', icon: Activity, path: '/admin/dashboard' },
-    { label: 'Institutions', icon: Building2, path: '/admin/centers' },
+    { label: 'Institution', icon: Building2, path: '/admin/centers' },
     { label: 'Programs', icon: BookOpen, path: '/admin/programs' },
     { label: 'Trainers', icon: Users, path: '/admin/trainers' },
-    { label: 'Assessment Centers', icon: Layers, path: '/admin/assessment' },
+    { label: 'Assessment Center', icon: Layers, path: '/admin/assessment' },
     { label: 'Assessors', icon: User, path: '/admin/assessors' },
     { label: 'Registry', icon: Search, path: '/admin/registry' },
   ]
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (!adminRole || adminRole === 'admin') {
+      return true
+    }
+
+    return canAccessAdminPath(adminRole, item.path)
+  })
 
   return (
     <div className="h-screen w-full bg-[#f1f5f9] dark:bg-background flex flex-col font-sans selection:bg-primary/20 overflow-hidden">
@@ -86,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <h1 className="text-sm font-black tracking-tight text-foreground uppercase hidden sm:block">TESDA PO Davao Del Sur</h1>
           </div>
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const active = pathname.startsWith(item.path)
               return (
                 <Link key={item.path} href={item.path}>
