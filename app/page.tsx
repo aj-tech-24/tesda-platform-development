@@ -79,8 +79,10 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { href: '/programs', label: 'Programs', icon: BookOpen },
-              { href: '/centers', label: 'Centers', icon: Building2 },
+              { href: '/centers', label: 'Training Centers', icon: Building2 },
               { href: '/trainers', label: 'Trainers', icon: Users },
+              { href: '/assessment-centers', label: 'Assessment Centers', icon: Shield },
+              { href: '/assessors', label: 'Assessors', icon: Award },
             ].map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
@@ -117,6 +119,8 @@ export default function Home() {
                 { href: '/programs', label: 'Training Programs', icon: BookOpen },
                 { href: '/centers', label: 'Training Centers', icon: Building2 },
                 { href: '/trainers', label: 'Expert Trainers', icon: Users },
+                { href: '/assessment-centers', label: 'Assessment Centers', icon: Shield },
+                { href: '/assessors', label: 'Assessors', icon: Award },
                 { href: '/admin', label: 'Admin Portal', icon: Shield },
               ].map(({ href, label, icon: Icon }) => (
                 <Link
@@ -140,7 +144,7 @@ export default function Home() {
         {/* Decorative blobs */}
         <div className="absolute top-20 right-[10%] w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-blob" />
         <div className="absolute bottom-20 left-[5%] w-96 h-96 bg-accent/8 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-primary/5 rounded-full blur-3xl" />
 
         {/* Floating shapes */}
         <div className="absolute top-32 left-[15%] w-16 h-16 border-2 border-primary/10 rounded-2xl animate-float opacity-40 rotate-12" />
@@ -171,14 +175,14 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="animate-fade-in-up stagger-2 flex flex-col sm:flex-row gap-4 justify-center pt-2" style={{ opacity: 0 }}>
               <Link href="/programs">
-                <Button size="lg" className="gap-2 w-full sm:w-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 text-white rounded-full px-8 h-12 text-base">
+                <Button size="lg" className="gap-2 w-full sm:w-auto bg-linear-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 text-white rounded-full px-8 h-12 text-base">
                   Explore Programs <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/centers">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-8 h-12 text-base border-border/80 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300">
                   <Building2 className="w-4 h-4 mr-2" />
-                  Find Centers
+                  Find Training Centers
                 </Button>
               </Link>
             </div>
@@ -188,7 +192,7 @@ export default function Home() {
               <div className="flex items-center justify-center gap-6 sm:gap-10 flex-wrap">
                 {[
                   { icon: CheckCircle2, label: '500+ Programs', color: 'text-emerald-500' },
-                  { icon: Building2, label: '150+ Centers', color: 'text-blue-500' },
+                  { icon: Building2, label: '150+ Training Centers', color: 'text-blue-500' },
                   { icon: Users, label: '10K+ Trainers', color: 'text-violet-500' },
                   { icon: Star, label: 'TESDA Accredited', color: 'text-amber-500' },
                 ].map(({ icon: Icon, label, color }) => (
@@ -203,7 +207,7 @@ export default function Home() {
         </div>
 
         {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-background to-transparent" />
       </section>
 
       {/* Search Bar Section */}
@@ -269,10 +273,10 @@ export default function Home() {
             <Card key={title} className={`card-lift border-border/50 ${borderColor} transition-all duration-300 overflow-hidden group`}>
               <CardContent className="p-8 space-y-5 relative">
                 {/* Gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className={`absolute inset-0 bg-linear-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                 <div className="relative">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-14 h-14 rounded-2xl bg-linear-to-br ${color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className={`w-7 h-7 ${iconColor}`} />
                   </div>
                   <h3 className="text-xl font-bold mb-2">{title}</h3>
@@ -290,7 +294,7 @@ export default function Home() {
 
       {/* Stats Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5" />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/5 via-accent/5 to-primary/5" />
         <div className="absolute inset-0 dot-pattern" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -305,7 +309,7 @@ export default function Home() {
               { target: 10000, suffix: '+', label: 'Active Trainers', sublabel: 'Industry professionals', icon: Users, accent: 'from-violet-500/15 to-violet-600/5' },
             ].map(({ target, suffix, label, sublabel, icon: Icon, accent }) => (
               <div key={label} className="relative bg-white/60 backdrop-blur-sm rounded-2xl border border-border/40 p-8 text-center space-y-4 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group">
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${accent} group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-br ${accent} group-hover:scale-110 transition-transform duration-300`}>
                   <Icon className="w-7 h-7 text-primary" />
                 </div>
                 <AnimatedCounter target={target} suffix={suffix} />
@@ -329,17 +333,17 @@ export default function Home() {
         <div className="grid md:grid-cols-4 gap-8">
           {[
             { step: '01', title: 'Browse Programs', desc: 'Explore our catalog of accredited training programs', icon: Search },
-            { step: '02', title: 'Choose a Center', desc: 'Find a certified training center near you', icon: Building2 },
+            { step: '02', title: 'Choose a Training Center', desc: 'Find a certified training center near you', icon: Building2 },
             { step: '03', title: 'Enroll & Train', desc: 'Register and start your hands-on training', icon: Target },
             { step: '04', title: 'Get Certified', desc: 'Complete assessments and earn your TESDA NC', icon: Award },
           ].map(({ step, title, desc, icon: Icon }, index) => (
             <div key={step} className="relative text-center group">
               {/* Connector line */}
               {index < 3 && (
-                <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-gradient-to-r from-primary/30 to-primary/5" />
+                <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-linear-to-r from-primary/30 to-primary/5" />
               )}
 
-              <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/15 mb-5 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300">
+              <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-primary/10 to-accent/5 border border-primary/15 mb-5 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300">
                 <Icon className="w-7 h-7 text-primary" />
                 <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
                   {step}
@@ -354,7 +358,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-accent p-12 md:p-20 text-center">
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary/90 to-accent p-12 md:p-20 text-center">
           {/* Decorative */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -384,7 +388,7 @@ export default function Home() {
               <Link href="/centers">
                 <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-white border border-white/30 bg-white/5 hover:bg-white/15 hover:border-white/50 rounded-full px-8 h-12 text-base font-medium transition-all duration-300 backdrop-blur-sm cursor-pointer">
                   <MapPin className="w-4 h-4" />
-                  View All Centers
+                  View All Training Centers
                 </button>
               </Link>
             </div>
@@ -394,7 +398,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-12 relative">
-        <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+        <div className="h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="space-y-4">
@@ -414,8 +418,10 @@ export default function Home() {
               <h4 className="font-semibold text-sm tracking-wider uppercase text-muted-foreground">Navigation</h4>
               <ul className="space-y-3 text-sm">
                 <li><Link href="/programs" className="text-foreground/70 hover:text-primary transition-colors">Programs</Link></li>
-                <li><Link href="/centers" className="text-foreground/70 hover:text-primary transition-colors">Centers</Link></li>
+                <li><Link href="/centers" className="text-foreground/70 hover:text-primary transition-colors">Training Centers</Link></li>
                 <li><Link href="/trainers" className="text-foreground/70 hover:text-primary transition-colors">Trainers</Link></li>
+                <li><Link href="/assessment-centers" className="text-foreground/70 hover:text-primary transition-colors">Assessment Centers</Link></li>
+                <li><Link href="/assessors" className="text-foreground/70 hover:text-primary transition-colors">Assessors</Link></li>
               </ul>
             </div>
             <div className="space-y-4">

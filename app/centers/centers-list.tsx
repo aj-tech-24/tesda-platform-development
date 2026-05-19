@@ -43,7 +43,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50/50 via-accent/3 to-background border-b border-border/50">
+      <div className="relative overflow-hidden bg-linear-to-br from-emerald-50/50 via-accent/3 to-background border-b border-border/50">
         <div className="absolute inset-0 dot-pattern opacity-40" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
         
@@ -56,7 +56,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
           </Link>
           
           <div className="flex items-start gap-5">
-            <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-200/30 items-center justify-center flex-shrink-0">
+            <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-linear-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-200/30 items-center justify-center shrink-0">
               <Building2 className="w-8 h-8 text-emerald-600" />
             </div>
             <div className="space-y-2">
@@ -111,7 +111,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
                   <CardContent className="p-6 space-y-5">
                     {/* Header */}
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-200/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-200/20 flex items-center justify-center shrink-0 overflow-hidden">
                         {center.logo_url ? (
                           <img src={center.logo_url} alt={center.name} className="w-full h-full object-cover rounded-xl" />
                         ) : (
@@ -130,7 +130,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
                     <div className="space-y-3">
                       {(center.address || center.municipality || center.province) && (
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center shrink-0">
                             <MapPin className="w-4 h-4 text-rose-500" />
                           </div>
                           <p className="text-sm text-muted-foreground pt-1.5 leading-relaxed">
@@ -141,7 +141,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
                       
                       {center.contact_email && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center shrink-0">
                             <Mail className="w-4 h-4 text-blue-500" />
                           </div>
                           <a href={`mailto:${center.contact_email}`} className="text-sm text-primary hover:underline underline-offset-2">
@@ -152,7 +152,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
 
                       {center.contact_no && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center shrink-0">
                             <Phone className="w-4 h-4 text-violet-500" />
                           </div>
                           <span className="text-sm text-muted-foreground">{center.contact_no}</span>
@@ -161,7 +161,7 @@ export function CentersList({ initialCenters }: CentersListProps) {
 
                       {center.website_url && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/20 flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/20 flex items-center justify-center shrink-0">
                             <Globe className="w-4 h-4 text-teal-500" />
                           </div>
                           <a href={center.website_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline underline-offset-2 flex items-center gap-1">
