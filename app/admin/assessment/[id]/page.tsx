@@ -1,13 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Building2, MapPin, Phone, User, Layers, BadgeCheck, CalendarDays, FileText, Globe } from 'lucide-react'
+import { ArrowLeft, Building2, Edit2, MapPin, Phone, User, Layers, BadgeCheck, CalendarDays, FileText, Globe } from 'lucide-react'
+import { getAdminRole } from '@/lib/admin-role'
 
 export const revalidate = 3600
 
 export default async function AdminAssessmentCenterDetail({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
   const { id } = await params
+  const { data: { user } } = await supabase.auth.getUser()
+  const adminRole = getAdminRole(user)
+  const canEditAssessmentCenters = adminRole === 'admin' || adminRole === 'assessment_center'
 
   try {
     const [{ data: center, error: centerError }, { data: accreditations, error: accreditationError }] = await Promise.all([
@@ -59,6 +63,17 @@ export default async function AdminAssessmentCenterDetail({ params }: { params: 
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {canEditAssessmentCenters && (
+            <div className="flex justify-end mb-3">
+              <Link href={`/admin/assessment/${id}/edit`}>
+                <Button size="sm" variant="outline" className="gap-2 rounded-full border-border/80 bg-white/80 backdrop-blur-sm hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200">
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </Button>
+              </Link>
+            </div>
+          )}
+
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] items-start">
             <div className="bg-white dark:bg-card border border-border/80 rounded-3xl p-6 shadow-sm">
               <div className="space-y-6">

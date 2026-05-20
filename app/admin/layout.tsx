@@ -15,7 +15,7 @@ import { canAccessAdminPath, getAdminRole, type AdminRole } from '@/lib/admin-ro
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null)
   const [adminRole, setAdminRole] = useState<AdminRole | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
@@ -23,13 +23,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Skip auth check and layout for login and signup pages
   const isAuthPage = pathname === '/admin/login' || pathname === '/admin/sign-up'
 
-  if (isAuthPage) {
-    return <>{children}</>
-  }
+  const [loading, setLoading] = useState(() => !isAuthPage)
 
   useEffect(() => {
+    if (isAuthPage) {
+      setLoading(false)
+      return
+    }
+
     checkAuth()
-  }, [pathname])
+  }, [isAuthPage])
+
+  useEffect(() => {
+    if (!authChecked || isAuthPage || !adminRole) {
+      return
+    }
+
+    if (!canAccessAdminPath(adminRole, pathname)) {
+      router.push('/admin/dashboard')
+    }
+  }, [authChecked, adminRole, isAuthPage, pathname, router])
 
   async function checkAuth() {
     try {
@@ -47,6 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       setAdminRole(role)
       setUser(user)
+      setAuthChecked(true)
     } catch {
       router.push('/admin/login')
     } finally {
@@ -62,9 +76,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading) {
     return (
       <div className="min-h-screen w-full bg-[#f8fafc] dark:bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="inline-flex h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
-          <p className="text-muted-foreground font-medium animate-pulse">Authenticating Admin...</p>
+        <div className="text-center space-y-5 w-full max-w-md px-6">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/70">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-linear-to-r from-violet-500 via-primary to-cyan-500" />
+          </div>
+          <div className="space-y-2">
+            <div className="mx-auto h-12 w-12 animate-pulse rounded-2xl bg-primary/10" />
+            <p className="text-muted-foreground font-medium animate-pulse">Authenticating Admin...</p>
+          </div>
         </div>
       </div>
     )

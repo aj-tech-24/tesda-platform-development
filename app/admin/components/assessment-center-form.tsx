@@ -11,9 +11,10 @@ import { toast } from 'sonner'
 interface AssessmentCenterFormProps {
   initialData?: any
   isEditing?: boolean
+  successHref?: string
 }
 
-export function AssessmentCenterForm({ initialData, isEditing = false }: AssessmentCenterFormProps) {
+export function AssessmentCenterForm({ initialData, isEditing = false, successHref = '/admin/assessment' }: AssessmentCenterFormProps) {
   const [name, setName] = useState(initialData?.name || '')
   const [region, setRegion] = useState(initialData?.region || '')
   const [province, setProvince] = useState(initialData?.province || '')
@@ -47,7 +48,7 @@ export function AssessmentCenterForm({ initialData, isEditing = false }: Assessm
         const { error } = await supabase.from('assessment_centers').update(payload).eq('id', initialData.id)
         if (error) throw error
         toast.success('Assessment center updated successfully')
-        router.push('/admin/assessment')
+        router.push(successHref)
         return
       }
 
@@ -55,7 +56,7 @@ export function AssessmentCenterForm({ initialData, isEditing = false }: Assessm
       if (error) throw error
 
       toast.success('Assessment center added successfully')
-      router.push('/admin/assessment')
+      router.push(successHref)
     } catch (err: any) {
       toast.error('Unable to save assessment center', { description: err?.message || 'Please try again.' })
       console.error(err)
