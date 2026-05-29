@@ -11,7 +11,7 @@ export default async function AdminAssessmentCenterDetail({ params }: { params: 
   const { id } = await params
   const { data: { user } } = await supabase.auth.getUser()
   const adminRole = getAdminRole(user)
-  const canEditAssessmentCenters = adminRole === 'admin' || adminRole === 'assessment_center'
+  const canEditAssessmentCenters = adminRole === 'assessment_center'
 
   try {
     const [{ data: center, error: centerError }, { data: accreditations, error: accreditationError }] = await Promise.all([

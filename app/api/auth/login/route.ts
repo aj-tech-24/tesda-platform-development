@@ -40,15 +40,10 @@ export async function POST(request: Request) {
 
     const user = data.user
 
-    if (user?.user_metadata?.is_admin !== true) {
-      await supabase.auth.signOut()
-      return NextResponse.json({ error: 'You do not have admin access.' }, { status: 403 })
-    }
-
     const role = getAdminRole(user)
     if (!role) {
       await supabase.auth.signOut()
-      return NextResponse.json({ error: 'Admin role is not configured for this account.' }, { status: 403 })
+      return NextResponse.json({ error: 'This account is not configured for the TESDA portal.' }, { status: 403 })
     }
 
     return response

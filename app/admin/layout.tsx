@@ -104,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ]
 
   const visibleNavItems = navItems.filter((item) => {
-    if (!adminRole || adminRole === 'admin') {
+    if (!adminRole) {
       return true
     }
 

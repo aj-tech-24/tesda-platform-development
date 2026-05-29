@@ -34,7 +34,10 @@ export default function AdminSignUpPage() {
     setLoading(true)
 
     try {
-      const role = inferAdminRoleFromEmail(email) || 'admin'
+      const role = inferAdminRoleFromEmail(email)
+      if (!role) {
+        throw new Error('Use the Assessment Center or Training Center email address to create an account.')
+      }
 
       const { data, error: authError } = await supabase.auth.signUp({
         email,
@@ -73,8 +76,8 @@ export default function AdminSignUpPage() {
 
         <Card className="border border-border/50">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-2xl">Admin Sign Up</CardTitle>
-            <CardDescription>Create an admin account for the TESDA portal</CardDescription>
+            <CardTitle className="text-2xl">Account Sign Up</CardTitle>
+            <CardDescription>Create an Assessment Center or Training Center account for the TESDA portal</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {error && (
@@ -90,7 +93,7 @@ export default function AdminSignUpPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@tesda.gov.ph"
+                  placeholder="assessmentcenter@tesda.gov.ph or trainingcenter@tesda.gov.ph"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

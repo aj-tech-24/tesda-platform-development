@@ -28,13 +28,23 @@ export default function ImportPage() {
     checkAuth()
   }, [])
 
-  const allowedImportTypes = adminRole === 'admin'
-    ? ['registry', 'assessment', 'assessor']
-    : adminRole === 'assessment_center'
+  const allowedImportTypes = adminRole === 'assessment_center'
       ? ['assessment']
       : adminRole === 'training_center'
         ? ['registry']
         : []
+
+  const roleLabel = adminRole === 'assessment_center'
+      ? 'Assessment Center'
+      : adminRole === 'training_center'
+        ? 'Training Center'
+        : 'Account'
+
+  const roleMessage = adminRole === 'assessment_center'
+      ? 'You are on the Assessment Center account, so only assessment imports are available.'
+      : adminRole === 'training_center'
+        ? 'You are on the Training Center account, so only registry imports are available.'
+        : 'Your account has limited import access.'
 
   useEffect(() => {
     if (allowedImportTypes.length && !allowedImportTypes.includes(importType)) {
@@ -154,6 +164,11 @@ export default function ImportPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="rounded-2xl border border-border/60 bg-secondary/30 px-4 py-3 text-sm">
+              <p className="font-semibold text-foreground">{roleLabel} account</p>
+              <p className="mt-1 text-muted-foreground">{roleMessage}</p>
+            </div>
+
             {/* Import Type Selector */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Select Import Type</label>
@@ -167,9 +182,6 @@ export default function ImportPage() {
                   )}
                   {allowedImportTypes.includes('assessment') && (
                     <SelectItem value="assessment" className="py-2.5 rounded-lg">Assessment Centers & Accreditations</SelectItem>
-                  )}
-                  {allowedImportTypes.includes('assessor') && (
-                    <SelectItem value="assessor" className="py-2.5 rounded-lg">Assessors & Accreditations</SelectItem>
                   )}
                 </SelectContent>
               </Select>

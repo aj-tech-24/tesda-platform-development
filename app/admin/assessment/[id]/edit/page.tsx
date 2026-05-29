@@ -14,7 +14,7 @@ export default async function EditAdminAssessmentCenterPage({ params }: { params
   const { data: { user } } = await supabase.auth.getUser()
   const adminRole = getAdminRole(user)
 
-  if (adminRole !== 'admin' && adminRole !== 'assessment_center') {
+  if (adminRole !== 'assessment_center') {
     redirect('/admin/assessment')
   }
 

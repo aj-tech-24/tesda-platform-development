@@ -1,4 +1,4 @@
-export type AdminRole = 'assessment_center' | 'training_center' | 'admin'
+export type AdminRole = 'assessment_center' | 'training_center'
 
 type AdminLikeUser = {
   email?: string | null
@@ -15,7 +15,6 @@ function normalizeRole(value?: string | null): AdminRole | null {
 
   if (normalized === 'assessment_center') return 'assessment_center'
   if (normalized === 'training_center') return 'training_center'
-  if (normalized === 'admin') return 'admin'
 
   return null
 }
@@ -51,11 +50,11 @@ export function getAdminRole(user?: AdminLikeUser | null): AdminRole | null {
 }
 
 export function canAccessAdminPath(role: AdminRole | null, pathname: string): boolean {
-  if (!role || role === 'admin') {
-    return true
+  if (!role) {
+    return false
   }
 
-  const roleAllowedPrefixes: Record<Exclude<AdminRole, 'admin'>, string[]> = {
+  const roleAllowedPrefixes: Record<AdminRole, string[]> = {
     assessment_center: ['/admin/dashboard', '/admin/assessment', '/admin/assessors', '/admin/registry', '/admin/import'],
     training_center: ['/admin/dashboard', '/admin/centers', '/admin/programs', '/admin/trainers', '/admin/registry', '/admin/import'],
   }
