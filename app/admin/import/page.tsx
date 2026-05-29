@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { ArrowLeft, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getAdminRole, type AdminRole } from '@/lib/admin-role'
 
 
 export default function ImportPage() {
@@ -19,6 +20,7 @@ export default function ImportPage() {
   const [error, setError] = useState('')
   const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [importType, setImportType] = useState<'registry' | 'assessment' | 'assessor'>('registry')
+  const [adminRole, setAdminRole] = useState<AdminRole | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -26,13 +28,30 @@ export default function ImportPage() {
     checkAuth()
   }, [])
 
+  const allowedImportTypes = adminRole === 'admin'
+    ? ['registry', 'assessment', 'assessor']
+    : adminRole === 'assessment_center'
+      ? ['assessment']
+      : adminRole === 'training_center'
+        ? ['registry']
+        : []
+
+  useEffect(() => {
+    if (allowedImportTypes.length && !allowedImportTypes.includes(importType)) {
+      setImportType(allowedImportTypes[0] as typeof importType)
+    }
+  }, [allowedImportTypes, importType])
+
   async function checkAuth() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user || user.user_metadata?.is_admin !== true) {
+      const role = getAdminRole(user)
+      if (!user || !role) {
         router.push('/admin/login')
         return
       }
+
+      setAdminRole(role)
     } catch (error) {
       router.push('/admin/login')
     } finally {
@@ -50,6 +69,10 @@ export default function ImportPage() {
 
   const handleImport = async () => {
     if (!file) return
+    if (allowedImportTypes.length && !allowedImportTypes.includes(importType)) {
+      setError('You do not have access to this import type.')
+      return
+    }
 
     setLoading(true)
     setError('')
@@ -139,14 +162,20 @@ export default function ImportPage() {
                   <SelectValue placeholder="Select import type" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
-                  <SelectItem value="registry" className="py-2.5 rounded-lg">Institutions, Programs & Trainers Registry</SelectItem>
-                  <SelectItem value="assessment" className="py-2.5 rounded-lg">Assessment Centers & Accreditations</SelectItem>
-                  <SelectItem value="assessor" className="py-2.5 rounded-lg">Assessors & Accreditations</SelectItem>
+                  {allowedImportTypes.includes('registry') && (
+                    <SelectItem value="registry" className="py-2.5 rounded-lg">Institutions, Programs & Trainers Registry</SelectItem>
+                  )}
+                  {allowedImportTypes.includes('assessment') && (
+                    <SelectItem value="assessment" className="py-2.5 rounded-lg">Assessment Centers & Accreditations</SelectItem>
+                  )}
+                  {allowedImportTypes.includes('assessor') && (
+                    <SelectItem value="assessor" className="py-2.5 rounded-lg">Assessors & Accreditations</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
-            {importType === 'registry' && (
+            {importType === 'registry' && allowedImportTypes.includes('registry') && (
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50">
                 <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Expected Columns Include:</h4>
                 <p className="text-sm text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
@@ -156,7 +185,7 @@ export default function ImportPage() {
                 </p>
               </div>
             )}
-            {importType === 'assessment' && (
+            {importType === 'assessment' && allowedImportTypes.includes('assessment') && (
               <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
                 <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">Expected Columns Include:</h4>
                 <p className="text-emerald-700/80 dark:text-emerald-300/80 leading-relaxed font-mono text-xs">
@@ -164,7 +193,7 @@ export default function ImportPage() {
                 </p>
               </div>
             )}
-            {importType === 'assessor' && (
+            {importType === 'assessor' && allowedImportTypes.includes('assessor') && (
               <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-100 dark:border-violet-900/50">
                 <h4 className="text-sm font-semibold text-violet-800 dark:text-violet-300 mb-2">Expected Columns Include:</h4>
                 <p className="text-xs text-violet-700/80 dark:text-violet-300/80 leading-relaxed font-mono">

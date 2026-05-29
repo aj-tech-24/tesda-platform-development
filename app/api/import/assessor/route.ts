@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import * as xlsx from 'xlsx'
+import { getAdminRole } from '@/lib/admin-role'
 
 export async function POST(request: Request) {
   try {
@@ -8,7 +9,8 @@ export async function POST(request: Request) {
     
     // Authenticate
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.user_metadata?.is_admin !== true) {
+    const adminRole = getAdminRole(user)
+    if (!user || adminRole !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
