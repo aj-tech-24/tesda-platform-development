@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, MapPin, Mail, Globe, Search, Building2, Filter, ExternalLink, Phone } from 'lucide-react'
+import { matchesSearchValue } from '@/lib/search-utils'
 
 interface Institution {
   id: string
@@ -32,10 +33,10 @@ export function CentersList({ initialCenters }: CentersListProps) {
 
   const filtered = initialCenters.filter((c) => {
     const matchesSearch = !searchTerm ||
-      c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.municipality?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.province?.toLowerCase().includes(searchTerm.toLowerCase())
+      matchesSearchValue(c.name, searchTerm) ||
+      matchesSearchValue(c.address, searchTerm) ||
+      matchesSearchValue(c.municipality, searchTerm) ||
+      matchesSearchValue(c.province, searchTerm)
     const matchesType = selectedType === 'all' || c.institution_type === selectedType
     return matchesSearch && matchesType
   })

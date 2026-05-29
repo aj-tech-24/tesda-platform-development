@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, BookOpen, Building2, Search, Users, Filter, BadgeCheck, Hash, Calendar } from 'lucide-react'
+import { matchesSearchValue } from '@/lib/search-utils'
 
 interface Trainer {
   id: string
@@ -41,9 +42,9 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
 
   const filtered = initialTrainers.filter((t) => {
     const matchesSearch = !searchTerm ||
-      t.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.specialization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.institutions?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      matchesSearchValue(t.full_name, searchTerm) ||
+      matchesSearchValue(t.specialization, searchTerm) ||
+      matchesSearchValue(t.institutions?.name, searchTerm)
     const matchesType = selectedType === 'all' || t.employment_type === selectedType
     return matchesSearch && matchesType
   })
@@ -51,7 +52,7 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-violet-50/50 via-primary/3 to-background border-b border-border/50">
+      <div className="relative overflow-hidden bg-linear-to-br from-violet-50/50 via-primary/3 to-background border-b border-border/50">
         <div className="absolute inset-0 dot-pattern opacity-40" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
         
@@ -64,7 +65,7 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
           </Link>
           
           <div className="flex items-start gap-5">
-            <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 border border-violet-200/30 items-center justify-center flex-shrink-0">
+            <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-linear-to-br from-violet-500/10 to-violet-600/5 border border-violet-200/30 items-center justify-center shrink-0">
               <Users className="w-8 h-8 text-violet-600" />
             </div>
             <div className="space-y-2">
@@ -121,13 +122,13 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
                     <CardContent className="p-6 space-y-5">
                       {/* Profile Header */}
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${avatarColors[index % avatarColors.length]} flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0`}>
+                        <div className={`w-12 h-12 rounded-full bg-linear-to-br ${avatarColors[index % avatarColors.length]} flex items-center justify-center text-white font-bold text-sm shadow-lg shrink-0`}>
                           {getInitials(trainer.full_name)}
                         </div>
                         <div className="min-w-0 flex-1">
                           <h3 className="font-bold text-lg leading-tight group-hover:text-violet-700 dark:group-hover:text-violet-400 transition-colors flex items-center gap-1.5">
                             {trainer.full_name}
-                            <BadgeCheck className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />
                           </h3>
                           {trainer.employment_type && (
                             <span className={`inline-flex text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mt-0.5 ${isRegular ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'}`}>
@@ -141,7 +142,7 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
                       <div className="space-y-3">
                         {trainer.specialization && (
                           <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0">
                               <BookOpen className="w-4 h-4 text-amber-500" />
                             </div>
                             <div className="pt-0.5">
@@ -153,7 +154,7 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
 
                         {trainer.institutions && (
                           <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center shrink-0">
                               <Building2 className="w-4 h-4 text-emerald-500" />
                             </div>
                             <div className="pt-0.5">
@@ -165,7 +166,7 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
 
                         {trainer.nttc_no && (
                           <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800/40 flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800/40 flex items-center justify-center shrink-0">
                               <Hash className="w-4 h-4 text-slate-500" />
                             </div>
                             <div className="pt-0.5">
@@ -180,7 +181,7 @@ export function TrainersList({ initialTrainers }: TrainersListProps) {
 
                         {trainer.nttc_validity && !nttcExpired && (
                           <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center shrink-0">
                               <Calendar className="w-4 h-4 text-blue-500" />
                             </div>
                             <div className="pt-0.5">

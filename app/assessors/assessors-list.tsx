@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, Search, Filter, MapPin, User, Award, BadgeCheck, CalendarDays, Building2 } from 'lucide-react'
+import { matchesSearchValue } from '@/lib/search-utils'
 
 interface AssessorAccreditation {
   qualification_title: string | null
@@ -38,11 +39,11 @@ export function AssessorsList({ initialAssessors, addButtonText, addButtonHref }
 
   const filtered = initialAssessors.filter((assessor) => {
     const matchesSearch = !searchTerm ||
-      assessor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessor.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessor.province?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessor.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessor.sector?.toLowerCase().includes(searchTerm.toLowerCase())
+      matchesSearchValue(assessor.name, searchTerm) ||
+      matchesSearchValue(assessor.region, searchTerm) ||
+      matchesSearchValue(assessor.province, searchTerm) ||
+      matchesSearchValue(assessor.address, searchTerm) ||
+      matchesSearchValue(assessor.sector, searchTerm)
     const matchesStatus = selectedStatus === 'all' || assessor.status === selectedStatus
     return matchesSearch && matchesStatus
   })

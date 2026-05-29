@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,23 +17,60 @@ interface Program {
 
 interface ProgramsListProps {
   initialPrograms: Program[]
+  initialSearchTerm?: string
 }
 
-export function ProgramsList({ initialPrograms }: ProgramsListProps) {
-  const [searchTerm, setSearchTerm] = useState('')
+function normalizeText(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
 
-  const filteredPrograms = searchTerm
-    ? initialPrograms.filter((p) =>
-        p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.qualification_level?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : initialPrograms
+function buildAcronym(value?: string | null) {
+  if (!value) return ''
+
+  return value
+    .split(/[^a-z0-9]+/i)
+    .filter(Boolean)
+    .map((word) => word[0])
+    .join('')
+    .toLowerCase()
+}
+
+function matchesSearchField(fieldValue: string | null | undefined, query: string) {
+  if (!fieldValue) return false
+
+  const normalizedField = normalizeText(fieldValue)
+  const normalizedQuery = normalizeText(query)
+  if (!normalizedQuery) return true
+
+  if (normalizedField.includes(normalizedQuery)) return true
+
+  const acronym = buildAcronym(fieldValue)
+  return acronym.includes(normalizedQuery.replace(/\s+/g, ''))
+}
+
+export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: ProgramsListProps) {
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm)
+
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm)
+  }, [initialSearchTerm])
+
+  const filteredPrograms = useMemo(() => {
+    const query = searchTerm.trim()
+    if (!query) return initialPrograms
+
+    return initialPrograms.filter((program) => (
+      matchesSearchField(program.title, query) ||
+      matchesSearchField(program.description, query) ||
+      matchesSearchField(program.qualification_level, query) ||
+      matchesSearchField(program.delivery_mode, query)
+    ))
+  }, [initialPrograms, searchTerm])
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-accent/3 to-background border-b border-border/50">
+      <div className="relative overflow-hidden bg-linear-to-br from-primary/5 via-accent/3 to-background border-b border-border/50">
         <div className="absolute inset-0 dot-pattern opacity-40" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
         
@@ -46,7 +83,7 @@ export function ProgramsList({ initialPrograms }: ProgramsListProps) {
           </Link>
           
           <div className="flex items-start gap-5">
-            <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-200/30 items-center justify-center flex-shrink-0">
+            <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500/10 to-blue-600/5 border border-blue-200/30 items-center justify-center shrink-0">
               <GraduationCap className="w-8 h-8 text-blue-600" />
             </div>
             <div className="space-y-2">
@@ -87,11 +124,11 @@ export function ProgramsList({ initialPrograms }: ProgramsListProps) {
                   style={{ opacity: 0, animationDelay: `${Math.min(index * 0.04, 0.3)}s` }}
                 >
                   {/* Top accent bar */}
-                  <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-accent/40 to-transparent" />
+                  <div className="h-1 w-full bg-linear-to-r from-primary/60 via-accent/40 to-transparent" />
                   
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
                         <BookOpen className="w-5 h-5 text-primary" />
                       </div>
                       <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors">{program.title}</h3>

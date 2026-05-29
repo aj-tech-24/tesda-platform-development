@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -50,12 +51,24 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  function handleSearchSubmit() {
+    const query = searchQuery.trim()
+    if (!query) {
+      router.push('/programs')
+      return
+    }
+
+    router.push(`/programs?q=${encodeURIComponent(query)}`)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -212,19 +225,28 @@ export default function Home() {
 
       {/* Search Bar Section */}
       <section className="relative z-10 -mt-8 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass rounded-2xl shadow-xl shadow-primary/5 p-2 animate-scale-in" style={{ opacity: 0, animationDelay: '0.4s' }}>
+        <form
+          className="glass rounded-2xl shadow-xl shadow-primary/5 p-2 animate-scale-in"
+          style={{ opacity: 0, animationDelay: '0.4s' }}
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSearchSubmit()
+          }}
+        >
           <div className="flex items-center gap-3 bg-background/60 rounded-xl px-5 py-4">
             <Search className="w-5 h-5 text-primary" />
             <input
               type="text"
-              placeholder="Search programs, centers, or skills..."
+              placeholder="Search training programs, e.g. SMAW"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent flex-1 outline-none text-foreground placeholder-muted-foreground text-base"
             />
-            <Button size="sm" className="rounded-full bg-primary hover:bg-primary/90 px-5 hidden sm:inline-flex">
+            <Button type="submit" size="sm" className="rounded-full bg-primary hover:bg-primary/90 px-5 hidden sm:inline-flex">
               Search
             </Button>
           </div>
-        </div>
+        </form>
       </section>
 
       {/* Features Section */}

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, Building2, Search, MapPin, Filter, Phone, User, Award, BadgeCheck, CalendarDays, FileText } from 'lucide-react'
+import { matchesSearchValue } from '@/lib/search-utils'
 
 interface AssessmentAccreditation {
   qualification_title: string | null
@@ -41,12 +42,12 @@ export function AssessmentCentersList({ initialCenters }: AssessmentCentersListP
 
   const filtered = initialCenters.filter((center) => {
     const matchesSearch = !searchTerm ||
-      center.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.province?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.center_manager?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.sector?.toLowerCase().includes(searchTerm.toLowerCase())
+      matchesSearchValue(center.name, searchTerm) ||
+      matchesSearchValue(center.region, searchTerm) ||
+      matchesSearchValue(center.province, searchTerm) ||
+      matchesSearchValue(center.address, searchTerm) ||
+      matchesSearchValue(center.center_manager, searchTerm) ||
+      matchesSearchValue(center.sector, searchTerm)
     const matchesStatus = selectedStatus === 'all' || center.status === selectedStatus
     return matchesSearch && matchesStatus
   })
