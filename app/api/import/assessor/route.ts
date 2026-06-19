@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     // Authenticate
     const { data: { user } } = await supabase.auth.getUser()
     const adminRole = getAdminRole(user)
-    if (!user || adminRole !== 'admin') {
+    if (!user || !adminRole || (adminRole !== 'admin' && adminRole !== 'assessment_center')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

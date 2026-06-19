@@ -29,7 +29,7 @@ export default function ImportPage() {
   }, [])
 
   const allowedImportTypes = adminRole === 'assessment_center'
-      ? ['assessment']
+      ? ['assessment', 'assessor']
       : adminRole === 'training_center'
         ? ['registry']
         : []
@@ -41,7 +41,7 @@ export default function ImportPage() {
         : 'Account'
 
   const roleMessage = adminRole === 'assessment_center'
-      ? 'You are on the Assessment Center account, so only assessment imports are available.'
+      ? 'You are on the Assessment Center account, so only assessment and assessor imports are available.'
       : adminRole === 'training_center'
         ? 'You are on the Training Center account, so only registry imports are available.'
         : 'Your account has limited import access.'
@@ -182,6 +182,9 @@ export default function ImportPage() {
                   )}
                   {allowedImportTypes.includes('assessment') && (
                     <SelectItem value="assessment" className="py-2.5 rounded-lg">Assessment Centers & Accreditations</SelectItem>
+                  )}
+                  {allowedImportTypes.includes('assessor') && (
+                    <SelectItem value="assessor" className="py-2.5 rounded-lg">Assessors & Accreditations</SelectItem>
                   )}
                 </SelectContent>
               </Select>

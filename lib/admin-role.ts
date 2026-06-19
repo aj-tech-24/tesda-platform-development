@@ -1,4 +1,4 @@
-export type AdminRole = 'assessment_center' | 'training_center'
+export type AdminRole = 'assessment_center' | 'training_center' | 'admin'
 
 type AdminLikeUser = {
   email?: string | null
@@ -13,6 +13,7 @@ function normalizeRole(value?: string | null): AdminRole | null {
     .trim()
     .replace(/[\s-]+/g, '_')
 
+  if (normalized === 'admin') return 'admin'
   if (normalized === 'assessment_center') return 'assessment_center'
   if (normalized === 'training_center') return 'training_center'
 
@@ -57,6 +58,16 @@ export function canAccessAdminPath(role: AdminRole | null, pathname: string): bo
   const roleAllowedPrefixes: Record<AdminRole, string[]> = {
     assessment_center: ['/admin/dashboard', '/admin/assessment', '/admin/assessors', '/admin/registry', '/admin/import'],
     training_center: ['/admin/dashboard', '/admin/centers', '/admin/programs', '/admin/trainers', '/admin/registry', '/admin/import'],
+    admin: [
+      '/admin/dashboard',
+      '/admin/centers',
+      '/admin/programs',
+      '/admin/trainers',
+      '/admin/assessment',
+      '/admin/assessors',
+      '/admin/registry',
+      '/admin/import'
+    ]
   }
 
   return roleAllowedPrefixes[role].some((prefix) => pathname.startsWith(prefix))
