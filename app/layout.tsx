@@ -30,8 +30,14 @@ export const metadata: Metadata = {
     description: 'Discover professional training programs and technical certifications from TESDA accredited training centers.',
   },
   icons: {
-    icon: '/tesda-logo.png',
-    apple: '/tesda-logo.png',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }
+    ],
   },
 }
 
