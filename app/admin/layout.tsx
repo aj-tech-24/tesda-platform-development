@@ -53,6 +53,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
 
       const role = getAdminRole(user)
+      if (!role) {
+        router.push('/admin/login')
+        return
+      }
       if (!canAccessAdminPath(role, pathname)) {
         router.push('/admin/dashboard')
         return
@@ -105,7 +109,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const visibleNavItems = navItems.filter((item) => {
     if (!adminRole) {
-      return true
+      return false
     }
 
     return canAccessAdminPath(adminRole, item.path)
