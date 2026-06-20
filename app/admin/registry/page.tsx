@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, Search, Building2, MapPin, Phone, Mail, Facebook, BookOpen, Clock, Tag, Calendar, User, FileText, CheckCircle2, AlertTriangle, XCircle, Filter, HelpCircle } from 'lucide-react'
+import { ArrowLeft, Search, Building2, MapPin, Phone, Mail, Facebook, BookOpen, Clock, Tag, Calendar, User, FileText, CheckCircle2, AlertTriangle, XCircle, Filter, HelpCircle, Layers, Shield } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 // Helper to determine status
@@ -31,8 +31,11 @@ function getExpiryStatus(dateStr: string | null) {
 }
 
 function RegistryContent() {
-  const [records, setRecords] = useState<any[]>([])
-  const [selectedRecord, setSelectedRecord] = useState<any | null>(null)
+  const [activeTab, setActiveTab] = useState<'training' | 'assessment'>('training')
+  const [trainingRecords, setTrainingRecords] = useState<any[]>([])
+  const [assessmentRecords, setAssessmentRecords] = useState<any[]>([])
+  const [selectedTrainingRecord, setSelectedTrainingRecord] = useState<any | null>(null)
+  const [selectedAssessmentRecord, setSelectedAssessmentRecord] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   
   const router = useRouter()
@@ -61,12 +64,35 @@ function RegistryContent() {
 
   async function fetchRegistry() {
     try {
-      const { data, error } = await supabase
-        .from('registry_view')
-        .select('*')
+      const [trainingRes, assessmentRes] = await Promise.all([
+        supabase.from('registry_view').select('*'),
+        supabase.from('assessment_accreditations').select(`
+          id,
+          qualification_title,
+          accreditation_number,
+          date_accredited,
+          valid_until,
+          status,
+          assessment_center_id,
+          assessment_centers (
+            id,
+            name,
+            region,
+            province,
+            address,
+            center_manager,
+            contact_no,
+            sector,
+            status
+          )
+        `)
+      ])
 
-      if (error) throw error
-      setRecords(data || [])
+      if (trainingRes.error) throw trainingRes.error
+      if (assessmentRes.error) throw assessmentRes.error
+
+      setTrainingRecords(trainingRes.data || [])
+      setAssessmentRecords(assessmentRes.data || [])
     } catch (error) {
       console.error('Error fetching registry:', error)
     } finally {
@@ -74,21 +100,40 @@ function RegistryContent() {
     }
   }
 
-  // Filter records based on global search
-  const filteredRecords = useMemo(() => {
-    if (!searchQuery) return records
+  const handleTabChange = (tab: 'training' | 'assessment') => {
+    setActiveTab(tab)
+    updateURL(searchQuery, 1)
+  }
+
+  // Filter training records based on global search
+  const filteredTrainingRecords = useMemo(() => {
+    if (!searchQuery) return trainingRecords
     const lowerQuery = searchQuery.toLowerCase()
-    return records.filter(r =>
+    return trainingRecords.filter(r =>
       r.institution_name?.toLowerCase().includes(lowerQuery) ||
       r.program_name?.toLowerCase().includes(lowerQuery) ||
       r.trainers_list?.toLowerCase().includes(lowerQuery) ||
       r.province?.toLowerCase().includes(lowerQuery) ||
       r.registration_no?.toLowerCase().includes(lowerQuery)
     )
-  }, [records, searchQuery])
+  }, [trainingRecords, searchQuery])
 
-  const totalPages = Math.ceil(filteredRecords.length / itemsPerPage)
-  const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  // Filter assessment records based on global search
+  const filteredAssessmentRecords = useMemo(() => {
+    if (!searchQuery) return assessmentRecords
+    const lowerQuery = searchQuery.toLowerCase()
+    return assessmentRecords.filter(r =>
+      r.qualification_title?.toLowerCase().includes(lowerQuery) ||
+      r.accreditation_number?.toLowerCase().includes(lowerQuery) ||
+      r.assessment_centers?.name?.toLowerCase().includes(lowerQuery) ||
+      r.assessment_centers?.province?.toLowerCase().includes(lowerQuery) ||
+      r.assessment_centers?.center_manager?.toLowerCase().includes(lowerQuery)
+    )
+  }, [assessmentRecords, searchQuery])
+
+  const activeRecords = activeTab === 'training' ? filteredTrainingRecords : filteredAssessmentRecords
+  const totalPages = Math.ceil(activeRecords.length / itemsPerPage)
+  const paginatedRecords = activeRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   if (loading) {
     return (
@@ -118,7 +163,7 @@ function RegistryContent() {
                   <Search className="w-6 h-6 text-primary" />
                   Global Registry
                 </h1>
-                <p className="text-sm text-muted-foreground">Unified search across institutions, programs, and trainers.</p>
+                <p className="text-sm text-muted-foreground">Unified search across institutions, programs, and assessment accreditations.</p>
               </div>
             </div>
             <div className="flex items-center gap-3 w-full md:w-auto">
@@ -128,8 +173,8 @@ function RegistryContent() {
                 </div>
                 <Input
                   type="text"
-                  placeholder="Search SMAW, Bulacan, Juan..."
-                  className="pl-9 pr-4 py-2 bg-secondary/50 border-transparent focus-visible:ring-primary/20 rounded-full"
+                  placeholder={activeTab === 'training' ? "Search Program, Province, Institution..." : "Search Qualification, Center, Province..."}
+                  className="pl-9 pr-4 py-2 bg-secondary/50 border-transparent focus-visible:ring-primary/20 rounded-full text-sm"
                   defaultValue={searchQuery}
                   onChange={(e) => {
                     updateURL(e.target.value, 1)
@@ -141,6 +186,32 @@ function RegistryContent() {
               </Button>
             </div>
           </div>
+
+          {/* Separation Tabs */}
+          <div className="flex border-b border-border/40 gap-6 mt-4 -mb-4">
+            <button
+              onClick={() => handleTabChange('training')}
+              className={`pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
+                activeTab === 'training'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              Training Center Registry ({filteredTrainingRecords.length})
+            </button>
+            <button
+              onClick={() => handleTabChange('assessment')}
+              className={`pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
+                activeTab === 'assessment'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Assessment Center Registry ({filteredAssessmentRecords.length})
+            </button>
+          </div>
         </div>
       </div>
 
@@ -150,56 +221,107 @@ function RegistryContent() {
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-muted-foreground uppercase bg-secondary/30 sticky top-0 z-10 backdrop-blur-md">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Institution</th>
-                  <th className="px-6 py-4 font-semibold">Program</th>
-                  <th className="px-6 py-4 font-semibold">Province</th>
-                  <th className="px-6 py-4 font-semibold">Trainer(s)</th>
-                  <th className="px-6 py-4 font-semibold text-center">Status</th>
-                  <th className="px-6 py-4 font-semibold">Expiry</th>
-                </tr>
+                {activeTab === 'training' ? (
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Institution</th>
+                    <th className="px-6 py-4 font-semibold">Program</th>
+                    <th className="px-6 py-4 font-semibold">Province</th>
+                    <th className="px-6 py-4 font-semibold">Trainer(s)</th>
+                    <th className="px-6 py-4 font-semibold text-center">Status</th>
+                    <th className="px-6 py-4 font-semibold">Expiry</th>
+                  </tr>
+                ) : (
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Assessment Center</th>
+                    <th className="px-6 py-4 font-semibold">Qualification Title</th>
+                    <th className="px-6 py-4 font-semibold">Province</th>
+                    <th className="px-6 py-4 font-semibold">Center Manager</th>
+                    <th className="px-6 py-4 font-semibold text-center">Status</th>
+                    <th className="px-6 py-4 font-semibold">Expiry</th>
+                  </tr>
+                )}
               </thead>
               <tbody className="divide-y divide-border/40">
                 {paginatedRecords.length > 0 ? (
                   paginatedRecords.map((record) => {
-                    const statusInfo = getExpiryStatus(record.expiration_date)
+                    const expiryDate = activeTab === 'training' ? record.expiration_date : record.valid_until
+                    const statusInfo = getExpiryStatus(expiryDate)
                     const StatusIcon = statusInfo.icon
 
-                    return (
-                      <tr
-                        key={record.id}
-                        onClick={() => setSelectedRecord(record)}
-                        className="hover:bg-primary/5 cursor-pointer transition-colors group"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="font-semibold text-foreground group-hover:text-primary transition-colors max-w-[250px] truncate" title={record.institution_name}>
-                            {record.institution_name}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-medium max-w-[200px] truncate" title={record.program_name}>
-                            {record.program_name}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
-                          {record.province || '-'}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-muted-foreground max-w-[200px] truncate" title={record.trainers_list || 'No trainers'}>
-                            {record.trainers_list || '-'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
-                            <StatusIcon className="w-3.5 h-3.5" />
-                            {statusInfo.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap font-medium">
-                          {record.expiration_date ? new Date(record.expiration_date).toLocaleDateString() : '-'}
-                        </td>
-                      </tr>
-                    )
+                    if (activeTab === 'training') {
+                      return (
+                        <tr
+                          key={record.id}
+                          onClick={() => setSelectedTrainingRecord(record)}
+                          className="hover:bg-primary/5 cursor-pointer transition-colors group"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-foreground group-hover:text-primary transition-colors max-w-[250px] truncate" title={record.institution_name}>
+                              {record.institution_name}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-medium max-w-[200px] truncate" title={record.program_name}>
+                              {record.program_name}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                            {record.province || '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-muted-foreground max-w-[200px] truncate" title={record.trainers_list || 'No trainers'}>
+                              {record.trainers_list || '-'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
+                              <StatusIcon className="w-3.5 h-3.5" />
+                              {statusInfo.label}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap font-medium">
+                            {record.expiration_date ? new Date(record.expiration_date).toLocaleDateString() : '-'}
+                          </td>
+                        </tr>
+                      )
+                    } else {
+                      const center = record.assessment_centers
+                      return (
+                        <tr
+                          key={record.id}
+                          onClick={() => setSelectedAssessmentRecord(record)}
+                          className="hover:bg-primary/5 cursor-pointer transition-colors group"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-foreground group-hover:text-primary transition-colors max-w-[250px] truncate" title={center?.name}>
+                              {center?.name || '-'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-medium max-w-[200px] truncate" title={record.qualification_title}>
+                              {record.qualification_title}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                            {center?.province || '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-muted-foreground max-w-[200px] truncate" title={center?.center_manager || 'No manager'}>
+                              {center?.center_manager || '-'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
+                              <StatusIcon className="w-3.5 h-3.5" />
+                              {statusInfo.label}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap font-medium">
+                            {record.valid_until ? new Date(record.valid_until).toLocaleDateString() : '-'}
+                          </td>
+                        </tr>
+                      )
+                    }
                   })
                 ) : (
                   <tr>
@@ -219,7 +341,7 @@ function RegistryContent() {
           {totalPages > 1 && (
             <div className="p-4 border-t border-border/40 flex items-center justify-between bg-white dark:bg-card shrink-0">
               <p className="text-sm text-muted-foreground hidden sm:block">
-                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredRecords.length)} of {filteredRecords.length} entries
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, activeRecords.length)} of {activeRecords.length} entries
               </p>
               <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                 <Button
@@ -249,18 +371,18 @@ function RegistryContent() {
         </div>
       </div>
 
-      {/* Details Drawer */}
-      <Sheet open={!!selectedRecord} onOpenChange={(open) => !open && setSelectedRecord(null)}>
+      {/* Training Details Drawer */}
+      <Sheet open={!!selectedTrainingRecord} onOpenChange={(open) => !open && setSelectedTrainingRecord(null)}>
         <SheetContent className="w-full sm:max-w-md lg:max-w-lg overflow-y-auto border-l border-border/50 p-0">
-          {selectedRecord && (
+          {selectedTrainingRecord && (
             <div className="flex flex-col h-full bg-[#f8fafc] dark:bg-background">
               {/* Header */}
               <div className="p-6 pb-4 bg-white dark:bg-card border-b border-border/50 sticky top-0 z-10">
                 <SheetHeader className="text-left space-y-1">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">Registry Record</Badge>
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">Training Program</Badge>
                     {(() => {
-                      const st = getExpiryStatus(selectedRecord.expiration_date)
+                      const st = getExpiryStatus(selectedTrainingRecord.expiration_date)
                       const Icon = st.icon
                       return (
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${st.color}`}>
@@ -270,17 +392,16 @@ function RegistryContent() {
                       )
                     })()}
                   </div>
-                  <SheetTitle className="text-2xl font-bold leading-tight">{selectedRecord.program_name}</SheetTitle>
+                  <SheetTitle className="text-2xl font-bold leading-tight">{selectedTrainingRecord.program_name}</SheetTitle>
                   <SheetDescription className="text-base font-medium flex items-center gap-1.5 pt-1">
                     <Building2 className="w-4 h-4 shrink-0" />
-                    {selectedRecord.institution_name}
+                    {selectedTrainingRecord.institution_name}
                   </SheetDescription>
                 </SheetHeader>
               </div>
 
               {/* Scrollable Content */}
               <div className="p-6 space-y-8 flex-1">
-
                 {/* Program Info */}
                 <section className="space-y-4">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
@@ -289,23 +410,23 @@ function RegistryContent() {
                   <div className="bg-white dark:bg-card rounded-2xl p-5 border border-border/50 shadow-sm grid gap-4 sm:grid-cols-2">
                     <div>
                       <p className="text-xs text-muted-foreground font-medium mb-1">Qualification Level</p>
-                      <p className="text-sm font-semibold flex items-center gap-1.5"><Tag className="w-3.5 h-3.5 text-muted-foreground" /> {selectedRecord.qualification_level || '-'}</p>
+                      <p className="text-sm font-semibold flex items-center gap-1.5"><Tag className="w-3.5 h-3.5 text-muted-foreground" /> {selectedTrainingRecord.qualification_level || '-'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground font-medium mb-1">Duration</p>
-                      <p className="text-sm font-semibold flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-muted-foreground" /> {selectedRecord.duration_hours ? `${selectedRecord.duration_hours} hours` : '-'}</p>
+                      <p className="text-sm font-semibold flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-muted-foreground" /> {selectedTrainingRecord.duration_hours ? `${selectedTrainingRecord.duration_hours} hours` : '-'}</p>
                     </div>
                     <div className="sm:col-span-2">
                       <p className="text-xs text-muted-foreground font-medium mb-1">Registration No.</p>
-                      <p className="text-sm font-semibold font-mono bg-secondary/50 inline-block px-2 py-0.5 rounded text-foreground">{selectedRecord.registration_no || 'Not Set'}</p>
+                      <p className="text-sm font-semibold font-mono bg-secondary/50 inline-block px-2 py-0.5 rounded text-foreground">{selectedTrainingRecord.registration_no || 'Not Set'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground font-medium mb-1">Date Issued</p>
-                      <p className="text-sm font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-muted-foreground" /> {selectedRecord.date_issued ? new Date(selectedRecord.date_issued).toLocaleDateString() : '-'}</p>
+                      <p className="text-sm font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-muted-foreground" /> {selectedTrainingRecord.date_issued ? new Date(selectedTrainingRecord.date_issued).toLocaleDateString() : '-'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground font-medium mb-1">Expiration Date</p>
-                      <p className="text-sm font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-muted-foreground" /> {selectedRecord.expiration_date ? new Date(selectedRecord.expiration_date).toLocaleDateString() : '-'}</p>
+                      <p className="text-sm font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-muted-foreground" /> {selectedTrainingRecord.expiration_date ? new Date(selectedTrainingRecord.expiration_date).toLocaleDateString() : '-'}</p>
                     </div>
                   </div>
                 </section>
@@ -320,27 +441,27 @@ function RegistryContent() {
                       <MapPin className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs text-muted-foreground font-medium mb-0.5">Location</p>
-                        <p className="text-sm font-medium">{selectedRecord.address || '-'}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{selectedRecord.municipality}{selectedRecord.province ? `, ${selectedRecord.province}` : ''}</p>
+                        <p className="text-sm font-medium">{selectedTrainingRecord.address || '-'}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{selectedTrainingRecord.municipality}{selectedTrainingRecord.province ? `, ${selectedTrainingRecord.province}` : ''}</p>
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4 pt-3 border-t border-border/50">
                       <div>
                         <p className="text-xs text-muted-foreground font-medium mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Head Name</p>
-                        <p className="text-sm font-semibold">{selectedRecord.head_name || '-'}</p>
+                        <p className="text-sm font-semibold">{selectedTrainingRecord.head_name || '-'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-medium mb-1 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Contact No.</p>
-                        <p className="text-sm font-semibold">{selectedRecord.contact_no || '-'}</p>
+                        <p className="text-sm font-semibold">{selectedTrainingRecord.contact_no || '-'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-medium mb-1 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</p>
-                        <p className="text-sm font-semibold break-all">{selectedRecord.contact_email || '-'}</p>
+                        <p className="text-sm font-semibold break-all">{selectedTrainingRecord.contact_email || '-'}</p>
                       </div>
-                      {selectedRecord.fb_account && (
+                      {selectedTrainingRecord.fb_account && (
                         <div>
                           <p className="text-xs text-muted-foreground font-medium mb-1 flex items-center gap-1.5"><Facebook className="w-3.5 h-3.5" /> FB Account</p>
-                          <a href={selectedRecord.fb_account} target="_blank" rel="noreferrer" className="text-sm font-semibold text-blue-600 hover:underline break-all">{selectedRecord.fb_account}</a>
+                          <a href={selectedTrainingRecord.fb_account} target="_blank" rel="noreferrer" className="text-sm font-semibold text-blue-600 hover:underline break-all">{selectedTrainingRecord.fb_account}</a>
                         </div>
                       )}
                     </div>
@@ -353,9 +474,9 @@ function RegistryContent() {
                     <User className="w-4 h-4 text-primary" /> Trainers
                   </h3>
                   <div className="bg-white dark:bg-card rounded-2xl p-5 border border-border/50 shadow-sm">
-                    {selectedRecord.trainers_list ? (
+                    {selectedTrainingRecord.trainers_list ? (
                       <ul className="space-y-2">
-                        {selectedRecord.trainers_list.split(', ').map((trainer: string, i: number) => (
+                        {selectedTrainingRecord.trainers_list.split(', ').map((trainer: string, i: number) => (
                           <li key={i} className="flex items-center gap-2 text-sm font-medium bg-secondary/30 px-3 py-2 rounded-lg">
                             <div className="w-2 h-2 rounded-full bg-primary/60 shrink-0" />
                             {trainer}
@@ -367,12 +488,104 @@ function RegistryContent() {
                     )}
                   </div>
                 </section>
-
               </div>
 
               {/* Footer */}
               <div className="p-4 bg-white dark:bg-card border-t border-border/50 sticky bottom-0 z-10 flex justify-end">
-                <Button variant="outline" onClick={() => setSelectedRecord(null)}>Close</Button>
+                <Button variant="outline" onClick={() => setSelectedTrainingRecord(null)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Assessment Details Drawer */}
+      <Sheet open={!!selectedAssessmentRecord} onOpenChange={(open) => !open && setSelectedAssessmentRecord(null)}>
+        <SheetContent className="w-full sm:max-w-md lg:max-w-lg overflow-y-auto border-l border-border/50 p-0">
+          {selectedAssessmentRecord && (
+            <div className="flex flex-col h-full bg-[#f8fafc] dark:bg-background">
+              {/* Header */}
+              <div className="p-6 pb-4 bg-white dark:bg-card border-b border-border/50 sticky top-0 z-10">
+                <SheetHeader className="text-left space-y-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">Assessment Accreditation</Badge>
+                    {(() => {
+                      const st = getExpiryStatus(selectedAssessmentRecord.valid_until)
+                      const Icon = st.icon
+                      return (
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${st.color}`}>
+                          <Icon className="w-3.5 h-3.5" />
+                          {st.label}
+                        </span>
+                      )
+                    })()}
+                  </div>
+                  <SheetTitle className="text-2xl font-bold leading-tight">{selectedAssessmentRecord.qualification_title}</SheetTitle>
+                  <SheetDescription className="text-base font-medium flex items-center gap-1.5 pt-1">
+                    <Building2 className="w-4 h-4 shrink-0" />
+                    {selectedAssessmentRecord.assessment_centers?.name}
+                  </SheetDescription>
+                </SheetHeader>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="p-6 space-y-8 flex-1">
+                {/* Accreditation Info */}
+                <section className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-primary" /> Accreditation Details
+                  </h3>
+                  <div className="bg-white dark:bg-card rounded-2xl p-5 border border-border/50 shadow-sm grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <p className="text-xs text-muted-foreground font-medium mb-1">Accreditation Number</p>
+                      <p className="text-sm font-semibold font-mono bg-secondary/50 inline-block px-2 py-0.5 rounded text-foreground">{selectedAssessmentRecord.accreditation_number || 'Not Set'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium mb-1">Date Accredited</p>
+                      <p className="text-sm font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-muted-foreground" /> {selectedAssessmentRecord.date_credited ? new Date(selectedAssessmentRecord.date_credited).toLocaleDateString() : '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium mb-1">Valid Until</p>
+                      <p className="text-sm font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-muted-foreground" /> {selectedAssessmentRecord.valid_until ? new Date(selectedAssessmentRecord.valid_until).toLocaleDateString() : '-'}</p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Center Info */}
+                <section className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-primary" /> Center Info
+                  </h3>
+                  <div className="bg-white dark:bg-card rounded-2xl p-5 border border-border/50 shadow-sm space-y-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium mb-0.5">Location</p>
+                        <p className="text-sm font-medium">{selectedAssessmentRecord.assessment_centers?.address || '-'}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{selectedAssessmentRecord.assessment_centers?.province}{selectedAssessmentRecord.assessment_centers?.region ? `, ${selectedAssessmentRecord.assessment_centers.region}` : ''}</p>
+                      </div>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-4 pt-3 border-t border-border/50">
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Manager</p>
+                        <p className="text-sm font-semibold">{selectedAssessmentRecord.assessment_centers?.center_manager || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium mb-1 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Contact No.</p>
+                        <p className="text-sm font-semibold">{selectedAssessmentRecord.assessment_centers?.contact_no || '-'}</p>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <p className="text-xs text-muted-foreground font-medium mb-1">Sector</p>
+                        <p className="text-sm font-semibold">{selectedAssessmentRecord.assessment_centers?.sector || '-'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-white dark:bg-card border-t border-border/50 sticky bottom-0 z-10 flex justify-end">
+                <Button variant="outline" onClick={() => setSelectedAssessmentRecord(null)}>Close</Button>
               </div>
             </div>
           )}
@@ -381,4 +594,5 @@ function RegistryContent() {
     </div>
   )
 }
+
 export default function RegistryPage() { return <Suspense fallback={<div>Loading...</div>}><RegistryContent /></Suspense> }
