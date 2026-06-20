@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
-import { ArrowLeft, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2, Download } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getAdminRole, type AdminRole } from '@/lib/admin-role'
@@ -191,29 +191,65 @@ export default function ImportPage() {
             </div>
 
             {importType === 'registry' && allowedImportTypes.includes('registry') && (
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50">
-                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Expected Columns Include:</h4>
-                <p className="text-sm text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
-                  <span className="font-semibold text-blue-900 dark:text-blue-200">Institutions:</span> NAME OF INSTITUTION, PROVINCE, ADDRESS, TEL. NO., E-mail Address, TYPE OF INSTITUTION.<br />
-                  <span className="font-semibold text-blue-900 dark:text-blue-200">Programs:</span> COURSE/REGISTERED PROGRAM, Qualification Code, DURATION, EXPIRATION DATE, DELIVERY MODE.<br />
-                  <span className="font-semibold text-blue-900 dark:text-blue-200">Trainers:</span> Trainer, NTTC No., Validity.
-                </p>
+              <div className="p-5 bg-blue-50/70 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/40 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300">Expected Columns Include:</h4>
+                  <p className="text-xs text-blue-700/80 dark:text-blue-300/70 leading-relaxed max-w-xl">
+                    <span className="font-semibold text-blue-900 dark:text-blue-200">Institutions:</span> NAME OF INSTITUTION, PROVINCE, ADDRESS, TEL. NO., E-mail Address, TYPE OF INSTITUTION.<br />
+                    <span className="font-semibold text-blue-900 dark:text-blue-200">Programs:</span> COURSE/REGISTERED PROGRAM, Qualification Code, DURATION, EXPIRATION DATE, DELIVERY MODE.<br />
+                    <span className="font-semibold text-blue-900 dark:text-blue-200">Trainers:</span> Trainer, NTTC No., Validity.
+                  </p>
+                </div>
+                <a
+                  href="/templates/registry_template.xlsx"
+                  download="registry_template.xlsx"
+                  className="w-full md:w-auto shrink-0"
+                >
+                  <Button variant="outline" size="sm" className="w-full md:w-auto bg-white dark:bg-slate-900 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/60 font-medium rounded-xl gap-2 shadow-sm transition-all duration-200">
+                    <Download className="w-4 h-4" />
+                    Template.xlsx
+                  </Button>
+                </a>
               </div>
             )}
             {importType === 'assessment' && allowedImportTypes.includes('assessment') && (
-              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
-                <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">Expected Columns Include:</h4>
-                <p className="text-emerald-700/80 dark:text-emerald-300/80 leading-relaxed font-mono text-xs">
-                  Region | PROVINCE | ASSESSMENT CENTER | ADDRESS | LONGITUDE | LATITUDE | CENTER MANAGER | TEL. NO. | SECTOR | QUALIFICATION TITLE | ACCREDITATION NUMBER | DATE ACCREDITED | VALID UNTIL | Status
-                </p>
+              <div className="p-5 bg-emerald-50/70 dark:bg-emerald-950/20 rounded-xl border border-emerald-100 dark:border-emerald-900/40 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Expected Columns Include:</h4>
+                  <p className="text-xs text-emerald-700/80 dark:text-emerald-300/70 leading-relaxed max-w-xl font-mono">
+                    Region | PROVINCE | ASSESSMENT CENTER | ADDRESS | LONGITUDE | LATITUDE | CENTER MANAGER | TEL. NO. | SECTOR | QUALIFICATION TITLE | ACCREDITATION NUMBER | DATE ACCREDITED | VALID UNTIL | Status
+                  </p>
+                </div>
+                <a
+                  href="/templates/assessment_template.xlsx"
+                  download="assessment_template.xlsx"
+                  className="w-full md:w-auto shrink-0"
+                >
+                  <Button variant="outline" size="sm" className="w-full md:w-auto bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60 font-medium rounded-xl gap-2 shadow-sm transition-all duration-200">
+                    <Download className="w-4 h-4" />
+                    Template.xlsx
+                  </Button>
+                </a>
               </div>
             )}
             {importType === 'assessor' && allowedImportTypes.includes('assessor') && (
-              <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-100 dark:border-violet-900/50">
-                <h4 className="text-sm font-semibold text-violet-800 dark:text-violet-300 mb-2">Expected Columns Include:</h4>
-                <p className="text-xs text-violet-700/80 dark:text-violet-300/80 leading-relaxed font-mono">
-                  REGION | PROVINCE | NAME | ADDRESS | SECTOR | QUALIFICATION TITLE | DATE OF ACCREDITATION | VALID UNTIL | Status
-                </p>
+              <div className="p-5 bg-violet-50/70 dark:bg-violet-950/20 rounded-xl border border-violet-100 dark:border-violet-900/40 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-violet-800 dark:text-violet-300">Expected Columns Include:</h4>
+                  <p className="text-xs text-violet-700/80 dark:text-violet-300/70 leading-relaxed max-w-xl font-mono">
+                    REGION | PROVINCE | NAME | ADDRESS | SECTOR | QUALIFICATION TITLE | DATE OF ACCREDITATION | VALID UNTIL | Status
+                  </p>
+                </div>
+                <a
+                  href="/templates/assessor_template.xlsx"
+                  download="assessor_template.xlsx"
+                  className="w-full md:w-auto shrink-0"
+                >
+                  <Button variant="outline" size="sm" className="w-full md:w-auto bg-white dark:bg-slate-900 hover:bg-violet-50 dark:hover:bg-violet-950/50 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-900/60 font-medium rounded-xl gap-2 shadow-sm transition-all duration-200">
+                    <Download className="w-4 h-4" />
+                    Template.xlsx
+                  </Button>
+                </a>
               </div>
             )}
 
