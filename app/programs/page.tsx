@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { ProgramsList } from './programs-list'
 
-// ISR: revalidate every hour. Data updates propagate within 60 minutes.
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 export default async function ProgramsPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
   const supabase = await createClient()

@@ -397,9 +397,8 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="relative w-full sm:max-w-md">
               <Search
-                className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                  isSearchFocused ? 'text-primary' : 'text-muted-foreground'
-                }`}
+                className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isSearchFocused ? 'text-primary' : 'text-muted-foreground'
+                  }`}
                 strokeWidth={1.5}
               />
               <input
@@ -449,40 +448,40 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
                           </Badge>
                         </div>
 
-                        <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 pt-1">
+                        <h3 className="text-xl font-extrabold leading-tight group-hover:text-primary transition-colors line-clamp-2 pt-1 text-foreground">
                           {program.title}
                         </h3>
 
                         {program.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                             {program.description}
                           </p>
                         )}
                       </div>
 
-                      <div className="space-y-2.5 pt-4 border-t border-border/50">
+                      <div className="space-y-3 pt-5 border-t border-border/50">
                         {program.qualification_level && (
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground flex items-center gap-1.5">
-                              <Award className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} /> Level:
+                            <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                              <Award className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Level
                             </span>
-                            <span className="font-semibold text-foreground">{program.qualification_level}</span>
+                            <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.qualification_level}</span>
                           </div>
                         )}
                         {program.duration_hours && (
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground flex items-center gap-1.5">
-                              <Clock className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} /> Max Duration:
+                            <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                              <Clock className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Duration
                             </span>
-                            <span className="font-semibold text-foreground">{program.duration_hours} hours</span>
+                            <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.duration_hours} hrs</span>
                           </div>
                         )}
                         {program.delivery_mode && (
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground flex items-center gap-1.5">
-                              <BookOpen className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} /> Delivery Mode:
+                            <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                              <BookOpen className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Mode
                             </span>
-                            <span className="font-semibold text-foreground">{program.delivery_mode}</span>
+                            <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.delivery_mode}</span>
                           </div>
                         )}
                       </div>
@@ -492,16 +491,16 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
               })}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-muted-foreground/50" strokeWidth={1.5} />
+            <div className="text-center py-24 bg-card/30 rounded-3xl border border-border/50 backdrop-blur-sm">
+              <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <Search className="w-10 h-10 text-muted-foreground/50" strokeWidth={1.5} />
               </div>
-              <p className="text-muted-foreground mb-2 font-medium">No programs found</p>
-              <p className="text-sm text-muted-foreground/70 mb-6">Try adjusting your search terms</p>
+              <p className="text-lg font-bold text-foreground mb-2">No programs found</p>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto">We couldn't find any training programs matching your search criteria. Try adjusting your keywords or filters.</p>
               <Button
-                variant="outline"
+                variant="default"
                 onClick={() => setSearchTerm('')}
-                className="rounded-full active:scale-[0.98] transition-transform cursor-pointer"
+                className="rounded-full px-8 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform cursor-pointer"
               >
                 Clear Search
               </Button>
@@ -510,200 +509,273 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
         </div>
       </div>
 
-      {/* Program Details Modal */}
+      {/* Program Details Modal - Enhanced Two-Column Layout */}
       <Dialog open={selectedProgram !== null} onOpenChange={(open) => { if (!open) setSelectedProgram(null) }}>
-        <DialogContent className="max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col p-6 rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl bg-background/95 backdrop-blur-md">
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-5xl max-h-[90vh] md:h-[800px] overflow-hidden flex flex-col p-0 rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl bg-background/95 backdrop-blur-xl">
           {selectedProgram && (
-            <>
-              <DialogHeader className="text-left shrink-0 pr-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                    {(() => {
-                      const Icon = getProgramIcon(selectedProgram.title)
-                      return <Icon className="w-5.5 h-5.5" strokeWidth={1.5} />
-                    })()}
-                  </div>
-                  {selectedProgram.qualification_level && (
-                    <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 text-xs font-semibold px-2 py-0.5">
-                      {selectedProgram.qualification_level}
-                    </Badge>
-                  )}
-                </div>
-                <DialogTitle className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground leading-tight">
-                  {selectedProgram.title}
-                </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground mt-2 leading-relaxed max-h-[80px] overflow-y-auto pr-1">
-                  {selectedProgram.description || 'No description available for this training program.'}
-                </DialogDescription>
-              </DialogHeader>
+            <div className="flex flex-col md:flex-row h-full w-full min-h-0 min-w-0">
 
-              {/* Tabs Content */}
-              <div className="flex-1 overflow-hidden flex flex-col mt-4 min-h-0">
+              {/* Left Column: Program Details (Sticky Info) */}
+              <div className="w-full md:w-[35%] bg-muted/20 border-b md:border-b-0 md:border-r border-border/60 p-4 md:p-8 flex flex-col shrink-0 md:overflow-y-auto">
+                <DialogHeader className="text-left space-y-4 md:space-y-6">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center shrink-0 shadow-lg shadow-primary/5">
+                      {(() => {
+                        const Icon = getProgramIcon(selectedProgram.title)
+                        return <Icon className="w-6 h-6 md:w-8 md:h-8 text-primary" strokeWidth={1.5} />
+                      })()}
+                    </div>
+                    {/* Mobile Title & Badges layout (Inline for compactness) */}
+                    <div className="md:hidden flex-1 min-w-0">
+                      <DialogTitle className="text-lg font-extrabold tracking-tight text-foreground leading-tight truncate">
+                        {selectedProgram.title}
+                      </DialogTitle>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {selectedProgram.qualification_level && (
+                          <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {selectedProgram.qualification_level}
+                          </Badge>
+                        )}
+                        <Badge variant="secondary" className="bg-foreground/5 text-foreground border-foreground/10 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {selectedProgram.offeringsCount} Center{selectedProgram.offeringsCount > 1 ? 's' : ''}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop Title & Badges layout */}
+                  <div className="hidden md:block">
+                    <DialogTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-tight mb-4">
+                      {selectedProgram.title}
+                    </DialogTitle>
+
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {selectedProgram.qualification_level && (
+                        <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                          {selectedProgram.qualification_level}
+                        </Badge>
+                      )}
+                      <Badge variant="secondary" className="bg-foreground/5 text-foreground border-foreground/10 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                        {selectedProgram.offeringsCount} Center{selectedProgram.offeringsCount > 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <DialogDescription className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                    {selectedProgram.description || 'No detailed description is currently available for this training program.'}
+                  </DialogDescription>
+
+                  {/* Key Stats Grid */}
+                  <div className="grid grid-cols-2 gap-3 md:gap-4 pt-4 md:pt-6 border-t border-border/50">
+                    {selectedProgram.duration_hours && (
+                      <div className="bg-background/50 rounded-xl p-3 md:p-4 border border-border/40 shadow-sm">
+                        <Clock className="w-4 h-4 md:w-5 md:h-5 text-primary/70 mb-1.5 md:mb-2" strokeWidth={1.5} />
+                        <div className="text-[10px] md:text-xs text-muted-foreground font-medium mb-0.5 md:mb-1">Duration</div>
+                        <div className="text-xs md:text-sm font-bold text-foreground">{selectedProgram.duration_hours} hours</div>
+                      </div>
+                    )}
+                    {selectedProgram.delivery_mode && (
+                      <div className="bg-background/50 rounded-xl p-3 md:p-4 border border-border/40 shadow-sm">
+                        <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-primary/70 mb-1.5 md:mb-2" strokeWidth={1.5} />
+                        <div className="text-[10px] md:text-xs text-muted-foreground font-medium mb-0.5 md:mb-1">Mode</div>
+                        <div className="text-xs md:text-sm font-bold text-foreground capitalize">{selectedProgram.delivery_mode}</div>
+                      </div>
+                    )}
+                  </div>
+                </DialogHeader>
+              </div>
+
+              {/* Right Column: Interactive Tabs */}
+              <div className="flex-1 flex flex-col min-h-0 min-w-0 bg-background/50 p-6 md:p-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-                  <TabsList className="grid grid-cols-2 w-full p-1 bg-muted/50 rounded-xl shrink-0">
-                    <TabsTrigger value="training" className="rounded-lg py-2">
-                      <School className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                      Training Centers ({isLoadingCenters ? '...' : trainingCenters.length})
+                  <TabsList className="grid grid-cols-2 w-full h-auto p-1.5 bg-muted/50 rounded-2xl shrink-0 border border-border/40 shadow-inner items-center">
+                    <TabsTrigger value="training" className="rounded-xl py-2.5 text-xs sm:text-sm font-semibold data-[state=active]:shadow-sm data-[state=active]:bg-background">
+                      <School className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 shrink-0" strokeWidth={2} />
+                      <span className="truncate">Training Centers</span>
+                      <span className="ml-1 sm:ml-2 bg-muted-foreground/15 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs shrink-0">{isLoadingCenters ? '-' : trainingCenters.length}</span>
                     </TabsTrigger>
-                    <TabsTrigger value="assessment" className="rounded-lg py-2">
-                      <Award className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                      Assessment Centers ({isLoadingCenters ? '...' : assessmentCenters.length})
+                    <TabsTrigger value="assessment" className="rounded-xl py-2.5 text-xs sm:text-sm font-semibold data-[state=active]:shadow-sm data-[state=active]:bg-background">
+                      <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 shrink-0" strokeWidth={2} />
+                      <span className="truncate">Assessment Centers</span>
+                      <span className="ml-1 sm:ml-2 bg-muted-foreground/15 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs shrink-0">{isLoadingCenters ? '-' : assessmentCenters.length}</span>
                     </TabsTrigger>
                   </TabsList>
 
                   {/* Training Centers Content */}
-                  <TabsContent value="training" className="flex-1 overflow-y-auto mt-4 pr-1 min-h-0">
+                  <TabsContent value="training" className="flex-1 overflow-y-auto mt-6 pr-2 min-h-0 w-full min-w-0 space-y-4">
                     {isLoadingCenters ? (
-                      <div className="space-y-4">
-                        <Skeleton className="h-24 w-full rounded-2xl" />
-                        <Skeleton className="h-24 w-full rounded-2xl" />
-                      </div>
+                      Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="flex gap-4 p-4 rounded-2xl border border-border/40">
+                          <Skeleton className="w-12 h-12 rounded-xl" />
+                          <div className="space-y-2 flex-1">
+                            <Skeleton className="h-4 w-1/3" />
+                            <Skeleton className="h-3 w-1/2" />
+                            <Skeleton className="h-3 w-1/4" />
+                          </div>
+                        </div>
+                      ))
                     ) : trainingCenters.length > 0 ? (
-                      <div className="space-y-3.5">
+                      <div className="grid gap-4 w-full">
                         {trainingCenters.map((item, i) => (
                           <div
                             key={item.programId}
-                            className="group/item relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-2xl border border-border/60 bg-muted/10 hover:bg-muted/20 hover:border-primary/20 transition-all duration-300"
+                            className="group/item relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 p-5 rounded-2xl border border-border/60 bg-card hover:bg-accent/5 hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md w-full min-w-0"
                           >
-                            <div className="space-y-1.5 flex-1 min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h4 className="font-bold text-sm text-foreground group-hover/item:text-primary transition-colors truncate">
-                                  {item.institution.name}
-                                </h4>
-                                {item.institution.institution_type && (
-                                  <Badge className="bg-primary/5 text-primary border-primary/5 text-[9px] uppercase tracking-wider font-bold py-0 px-2 rounded-full">
-                                    {item.institution.institution_type}
-                                  </Badge>
-                                )}
+                            <div className="flex items-start gap-4 flex-1 min-w-0">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <Building2 className="w-5 h-5 text-primary/70" strokeWidth={1.5} />
                               </div>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                <MapPin className="w-3.5 h-3.5 text-primary/70 shrink-0" strokeWidth={1.5} />
-                                <span className="truncate">
-                                  {[item.institution.address, item.institution.municipality, item.institution.province]
-                                    .filter(Boolean)
-                                    .join(', ')}
-                                </span>
-                              </p>
-                              <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1.5 text-[11px] text-muted-foreground/90 border-t border-border/30">
-                                {item.durationHours && (
-                                  <span className="inline-flex items-center gap-1">
-                                    <Clock className="w-3 h-3 text-primary/70" strokeWidth={1.5} />
-                                    {item.durationHours} hrs
+                              <div className="space-y-2 flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-bold text-base text-foreground group-hover/item:text-primary transition-colors truncate">
+                                    {item.institution.name}
+                                  </h4>
+                                  {item.institution.institution_type && (
+                                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-bold py-0 px-2 rounded-full border-border/80">
+                                      {item.institution.institution_type}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                                  <MapPin className="w-4 h-4 text-primary/60 shrink-0" strokeWidth={1.5} />
+                                  <span className="truncate">
+                                    {[item.institution.address, item.institution.municipality, item.institution.province]
+                                      .filter(Boolean)
+                                      .join(', ')}
                                   </span>
-                                )}
-                                {item.deliveryMode && (
-                                  <span className="inline-flex items-center gap-1 uppercase font-semibold text-[10px] text-primary/80">
-                                    {item.deliveryMode}
-                                  </span>
-                                )}
-                                {item.registrationNo && (
-                                  <span className="font-mono text-[10px] text-muted-foreground">
-                                    Reg: {item.registrationNo}
-                                  </span>
-                                )}
+                                </p>
+                                <div className="flex flex-wrap gap-x-5 gap-y-2 pt-2 mt-1 border-t border-border/40 text-xs text-muted-foreground/90 font-medium">
+                                  {item.durationHours && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Clock className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} />
+                                      {item.durationHours} hrs
+                                    </span>
+                                  )}
+                                  {item.deliveryMode && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <BookOpen className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} />
+                                      {item.deliveryMode}
+                                    </span>
+                                  )}
+                                  {item.registrationNo && (
+                                    <span className="font-mono text-[10px] bg-muted px-2 py-0.5 rounded-md">
+                                      REG: {item.registrationNo}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                            <Link href={`/centers/${item.institution.id}`} className="shrink-0 self-end sm:self-center">
+                            <Link href={`/centers/${item.institution.id}`} className="shrink-0 w-full lg:w-auto mt-2 lg:mt-0">
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="h-8.5 rounded-xl gap-1 hover:bg-primary hover:text-white transition-all cursor-pointer border-border/80 hover:border-primary text-xs pr-2 pl-3 active:scale-95"
+                                className="w-full lg:w-auto h-9 rounded-xl gap-2 hover:bg-primary hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 px-4"
                               >
-                                View Profile
-                                <ChevronRight className="w-3.5 h-3.5" />
+                                View Center
+                                <ChevronRight className="w-4 h-4" />
                               </Button>
                             </Link>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-10 space-y-3">
-                        <div className="w-12 h-12 rounded-xl bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground/60">
-                          <Building2 className="w-6 h-6" strokeWidth={1.5} />
+                      <div className="flex flex-col items-center justify-center h-full text-center py-16 px-4">
+                        <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-6 shadow-inner">
+                          <Building2 className="w-10 h-10 text-muted-foreground/40" strokeWidth={1.5} />
                         </div>
-                        <p className="text-sm font-semibold text-muted-foreground">No offering training centers found</p>
-                        <p className="text-xs text-muted-foreground/75">There are no registered schools currently offering this training curriculum.</p>
+                        <h3 className="text-xl font-bold text-foreground mb-2">No Training Centers</h3>
+                        <p className="text-muted-foreground max-w-sm">We couldn't find any registered institutions currently offering this specific training program.</p>
                       </div>
                     )}
                   </TabsContent>
 
                   {/* Assessment Centers Content */}
-                  <TabsContent value="assessment" className="flex-1 overflow-y-auto mt-4 pr-1 min-h-0">
+                  <TabsContent value="assessment" className="flex-1 overflow-y-auto mt-6 pr-2 min-h-0 w-full min-w-0 space-y-4">
                     {isLoadingCenters ? (
-                      <div className="space-y-4">
-                        <Skeleton className="h-24 w-full rounded-2xl" />
-                        <Skeleton className="h-24 w-full rounded-2xl" />
-                      </div>
+                      Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="flex gap-4 p-4 rounded-2xl border border-border/40">
+                          <Skeleton className="w-12 h-12 rounded-xl" />
+                          <div className="space-y-2 flex-1">
+                            <Skeleton className="h-4 w-1/3" />
+                            <Skeleton className="h-3 w-1/2" />
+                            <Skeleton className="h-3 w-1/4" />
+                          </div>
+                        </div>
+                      ))
                     ) : assessmentCenters.length > 0 ? (
-                      <div className="space-y-3.5">
+                      <div className="grid gap-4 w-full">
                         {assessmentCenters.map((item, i) => (
                           <div
                             key={item.accreditationId}
-                            className="group/item relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-2xl border border-border/60 bg-muted/10 hover:bg-muted/20 hover:border-primary/20 transition-all duration-300"
+                            className="group/item relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 p-5 rounded-2xl border border-border/60 bg-card hover:bg-accent/5 hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md w-full min-w-0"
                           >
-                            <div className="space-y-1.5 flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-bold text-sm text-foreground group-hover/item:text-primary transition-colors truncate">
-                                  {item.center.name}
-                                </h4>
-                                {item.status && (
-                                  <Badge
-                                    className={`text-[9px] uppercase tracking-wider font-bold py-0 px-2 rounded-full border ${
-                                      item.status.toLowerCase() === 'active'
+                            <div className="flex items-start gap-4 flex-1 min-w-0">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <Award className="w-5 h-5 text-primary/70" strokeWidth={1.5} />
+                              </div>
+                              <div className="space-y-2 flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-bold text-base text-foreground group-hover/item:text-primary transition-colors truncate">
+                                    {item.center.name}
+                                  </h4>
+                                  {item.status && (
+                                    <Badge
+                                      className={`text-[10px] uppercase tracking-wider font-bold py-0.5 px-2.5 rounded-full border ${item.status.toLowerCase() === 'active'
                                         ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
                                         : 'bg-destructive/10 text-destructive border-destructive/20'
-                                    }`}
-                                  >
-                                    {item.status}
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                <MapPin className="w-3.5 h-3.5 text-primary/70 shrink-0" strokeWidth={1.5} />
-                                <span className="truncate">
-                                  {[item.center.address, item.center.province, item.center.region]
-                                    .filter(Boolean)
-                                    .join(', ')}
-                                </span>
-                              </p>
-                              <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1.5 text-[11px] text-muted-foreground/90 border-t border-border/30">
-                                {item.accreditationNumber && (
-                                  <span className="font-mono text-[10px]">Accred: {item.accreditationNumber}</span>
-                                )}
-                                {item.validUntil && (
-                                  <span className="inline-flex items-center gap-1">
-                                    <ShieldCheck className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} />
-                                    Valid until: {new Date(item.validUntil).toLocaleDateString()}
+                                        }`}
+                                    >
+                                      {item.status}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                                  <MapPin className="w-4 h-4 text-primary/60 shrink-0" strokeWidth={1.5} />
+                                  <span className="truncate">
+                                    {[item.center.address, item.center.province, item.center.region]
+                                      .filter(Boolean)
+                                      .join(', ')}
                                   </span>
-                                )}
+                                </p>
+                                <div className="flex flex-wrap gap-x-5 gap-y-2 pt-2 mt-1 border-t border-border/40 text-xs text-muted-foreground/90 font-medium">
+                                  {item.accreditationNumber && (
+                                    <span className="font-mono text-[10px] bg-muted px-2 py-0.5 rounded-md">
+                                      ACCRED: {item.accreditationNumber}
+                                    </span>
+                                  )}
+                                  {item.validUntil && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <ShieldCheck className="w-3.5 h-3.5 text-primary/70" strokeWidth={1.5} />
+                                      Valid until {new Date(item.validUntil).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                            <Link href={`/assessment-centers/${item.center.id}`} className="shrink-0 self-end sm:self-center">
+                            <Link href={`/assessment-centers/${item.center.id}`} className="shrink-0 w-full lg:w-auto mt-2 lg:mt-0">
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="h-8.5 rounded-xl gap-1 hover:bg-primary hover:text-white transition-all cursor-pointer border-border/80 hover:border-primary text-xs pr-2 pl-3 active:scale-95"
+                                className="w-full lg:w-auto h-9 rounded-xl gap-2 hover:bg-primary hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 px-4"
                               >
-                                View Profile
-                                <ChevronRight className="w-3.5 h-3.5" />
+                                View Center
+                                <ChevronRight className="w-4 h-4" />
                               </Button>
                             </Link>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-10 space-y-3">
-                        <div className="w-12 h-12 rounded-xl bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground/60">
-                          <Award className="w-6 h-6" strokeWidth={1.5} />
+                      <div className="flex flex-col items-center justify-center h-full text-center py-16 px-4">
+                        <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-6 shadow-inner">
+                          <ShieldCheck className="w-10 h-10 text-muted-foreground/40" strokeWidth={1.5} />
                         </div>
-                        <p className="text-sm font-semibold text-muted-foreground">No accredited assessment centers found</p>
-                        <p className="text-xs text-muted-foreground/75 font-normal">There are no assessment centers currently accredited for this qualification.</p>
+                        <h3 className="text-xl font-bold text-foreground mb-2">No Assessment Centers</h3>
+                        <p className="text-muted-foreground max-w-sm">We couldn't find any accredited assessment centers for this qualification currently.</p>
                       </div>
                     )}
                   </TabsContent>
                 </Tabs>
               </div>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
