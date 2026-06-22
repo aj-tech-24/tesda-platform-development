@@ -14,6 +14,19 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  // Performance: Skip the expensive auth.getUser() call for public routes.
+  // Only admin/protected pages need authentication checks.
+  const isProtectedRoute =
+    request.nextUrl.pathname.startsWith('/admin') ||
+    request.nextUrl.pathname.startsWith('/protected')
+  const isAuthExempt =
+    request.nextUrl.pathname.startsWith('/admin/login') ||
+    request.nextUrl.pathname.startsWith('/admin/sign-up')
+
+  if (!isProtectedRoute || isAuthExempt) {
+    return NextResponse.next({ request })
+  }
+
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
@@ -39,12 +52,6 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  // IMPORTANT: If you remove getUser() and you use server-side rendering
-  // with the Supabase client, your users may be randomly logged out.
   const {
     data: { user },
   } = await supabase.auth.getUser()

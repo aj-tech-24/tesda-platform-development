@@ -4,9 +4,10 @@ import { ProgramsList } from './programs-list'
 // ISR: revalidate every hour. Data updates propagate within 60 minutes.
 export const revalidate = 3600
 
-export default async function ProgramsPage({ searchParams }: { searchParams?: { q?: string } }) {
+export default async function ProgramsPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
   const supabase = await createClient()
-  const initialSearchTerm = typeof searchParams?.q === 'string' ? searchParams.q : ''
+  const resolvedParams = await searchParams
+  const initialSearchTerm = typeof resolvedParams?.q === 'string' ? resolvedParams.q : ''
   
   const { data: programs } = await supabase
     .from('programs')

@@ -65,7 +65,7 @@ export function Screensaver() {
             alt={item.title}
             fill
             className={`object-cover object-center transition-transform duration-[10000ms] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
-            priority
+            loading="lazy"
           />
         </div>
       ))}

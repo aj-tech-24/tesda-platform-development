@@ -28,6 +28,8 @@ CREATE TABLE institutions (
     classification TEXT,
     status TEXT DEFAULT 'Active',
     sector TEXT,
+    longitude DOUBLE PRECISION,
+    latitude DOUBLE PRECISION,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
