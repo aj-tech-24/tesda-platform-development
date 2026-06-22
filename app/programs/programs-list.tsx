@@ -565,8 +565,8 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
                             window.scrollTo({ top: 0, behavior: 'smooth' })
                           }}
                           className={`rounded-xl h-10 w-10 font-bold transition-all active:scale-95 cursor-pointer ${currentPage === page
-                              ? 'bg-primary text-white shadow-md hover:bg-primary/95'
-                              : 'hover:bg-primary/5 hover:text-primary'
+                            ? 'bg-primary text-white shadow-md hover:bg-primary/95'
+                            : 'hover:bg-primary/5 hover:text-primary'
                             }`}
                         >
                           {page}
