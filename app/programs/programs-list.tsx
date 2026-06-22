@@ -264,83 +264,103 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
       const supabase = createClient()
 
       try {
-        // 1. Fetch training centers offering this program title
-        const { data: trainingData, error: trainingError } = await supabase
-          .from('programs')
-          .select(`
-            id,
-            registration_no,
-            date_issued,
-            expiration_date,
-            delivery_mode,
-            duration_hours,
-            qualification_level,
-            institutions (
+        // Fetch training and assessment data concurrently to reduce load latency
+        const [trainingResult, assessmentResult] = await Promise.all([
+          supabase
+            .from('programs')
+            .select(`
               id,
-              name,
-              address,
-              municipality,
-              province,
-              contact_email,
-              contact_no,
-              website_url,
-              logo_url,
-              institution_type,
-              status
-            )
-          `)
-          .eq('title', selectedProgram.title)
+              registration_no,
+              date_issued,
+              expiration_date,
+              delivery_mode,
+              duration_hours,
+              qualification_level,
+              institutions (
+                id,
+                name,
+                address,
+                municipality,
+                province,
+                contact_email,
+                contact_no,
+                website_url,
+                logo_url,
+                institution_type,
+                status
+              )
+            `)
+            .eq('title', selectedProgram.title),
+          supabase
+            .from('assessment_accreditations')
+            .select(`
+              id,
+              accreditation_number,
+              date_accredited,
+              valid_until,
+              status,
+              assessment_centers (
+                id,
+                name,
+                region,
+                province,
+                address,
+                center_manager,
+                contact_no,
+                sector,
+                status
+              )
+            `)
+            .ilike('qualification_title', `%${selectedProgram.title}%`)
+        ])
 
-        // 2. Fetch assessment centers accredited for this program title
-        const { data: assessmentData, error: assessmentError } = await supabase
-          .from('assessment_accreditations')
-          .select(`
-            id,
-            accreditation_number,
-            date_accredited,
-            valid_until,
-            status,
-            assessment_centers (
-              id,
-              name,
-              region,
-              province,
-              address,
-              center_manager,
-              contact_no,
-              sector,
-              status
-            )
-          `)
-          .ilike('qualification_title', `%${selectedProgram.title}%`)
+        const { data: trainingData, error: trainingError } = trainingResult
+        const { data: assessmentData, error: assessmentError } = assessmentResult
 
         if (trainingError) console.error('Error fetching training centers:', trainingError)
         if (assessmentError) console.error('Error fetching assessment centers:', assessmentError)
 
-        // Filter out null relations
-        const parsedTraining = (trainingData || [])
-          .map((p: any) => ({
-            programId: p.id,
-            registrationNo: p.registration_no,
-            dateIssued: p.date_issued,
-            expirationDate: p.expiration_date,
-            deliveryMode: p.delivery_mode,
-            durationHours: p.duration_hours,
-            qualificationLevel: p.qualification_level,
-            institution: p.institutions,
-          }))
-          .filter((item: any) => item.institution !== null)
+        // Parse and deduplicate training centers by institution ID
+        const seenInstitutions = new Set()
+        const parsedTraining: any[] = []
 
-        const parsedAssessment = (assessmentData || [])
-          .map((a: any) => ({
-            accreditationId: a.id,
-            accreditationNumber: a.accreditation_number,
-            dateAccredited: a.date_accredited,
-            validUntil: a.valid_until,
-            status: a.status,
-            center: a.assessment_centers,
-          }))
-          .filter((item: any) => item.center !== null)
+        if (trainingData) {
+          trainingData.forEach((p: any) => {
+            if (p.institutions && !seenInstitutions.has(p.institutions.id)) {
+              seenInstitutions.add(p.institutions.id)
+              parsedTraining.push({
+                programId: p.id,
+                registrationNo: p.registration_no,
+                dateIssued: p.date_issued,
+                expirationDate: p.expiration_date,
+                deliveryMode: p.delivery_mode,
+                durationHours: p.duration_hours,
+                qualificationLevel: p.qualification_level,
+                institution: p.institutions,
+              })
+            }
+          })
+        }
+
+        // Parse and deduplicate assessment centers by center ID
+        const seenCenters = new Set()
+        const parsedAssessment: any[] = []
+
+        if (assessmentData) {
+          assessmentData.forEach((a: any) => {
+            if (a.assessment_centers && !seenCenters.has(a.assessment_centers.id)) {
+              seenCenters.add(a.assessment_centers.id)
+              parsedAssessment.push({
+                accreditationId: a.id,
+                accreditationNumber: a.accreditation_number,
+                dateAccredited: a.date_accredited,
+                validUntil: a.valid_until,
+                status: a.status,
+                center: a.assessment_centers,
+              })
+            }
+          })
+        }
 
         setTrainingCenters(parsedTraining)
         setAssessmentCenters(parsedAssessment)
