@@ -40,6 +40,7 @@ import {
   Building2,
   ExternalLink,
   ShieldCheck,
+  ChevronLeft,
   ChevronRight,
   School
 } from 'lucide-react'
@@ -203,7 +204,7 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 12
+  const ITEMS_PER_PAGE = 30
 
   useEffect(() => {
     setSearchTerm(initialSearchTerm)
@@ -563,11 +564,10 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
                             setCurrentPage(page)
                             window.scrollTo({ top: 0, behavior: 'smooth' })
                           }}
-                          className={`rounded-xl h-10 w-10 font-bold transition-all active:scale-95 cursor-pointer ${
-                            currentPage === page
+                          className={`rounded-xl h-10 w-10 font-bold transition-all active:scale-95 cursor-pointer ${currentPage === page
                               ? 'bg-primary text-white shadow-md hover:bg-primary/95'
                               : 'hover:bg-primary/5 hover:text-primary'
-                          }`}
+                            }`}
                         >
                           {page}
                         </Button>
