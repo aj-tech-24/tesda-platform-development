@@ -622,7 +622,7 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
                   </TabsList>
 
                   {/* Training Centers Content */}
-                  <TabsContent value="training" className="flex-1 overflow-y-auto mt-6 pr-2 min-h-0 w-full min-w-0 space-y-4">
+                  <TabsContent value="training" className="flex-1 overflow-y-auto scroll-smooth mt-6 pr-2 min-h-0 w-full min-w-0 space-y-4">
                     {isLoadingCenters ? (
                       Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="flex gap-4 p-4 rounded-2xl border border-border/40">
@@ -709,7 +709,7 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
                   </TabsContent>
 
                   {/* Assessment Centers Content */}
-                  <TabsContent value="assessment" className="flex-1 overflow-y-auto mt-6 pr-2 min-h-0 w-full min-w-0 space-y-4">
+                  <TabsContent value="assessment" className="flex-1 overflow-y-auto scroll-smooth mt-6 pr-2 min-h-0 w-full min-w-0 space-y-4">
                     {isLoadingCenters ? (
                       Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="flex gap-4 p-4 rounded-2xl border border-border/40">
