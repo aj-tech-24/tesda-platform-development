@@ -201,10 +201,19 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
   const [assessmentCenters, setAssessmentCenters] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState('training')
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 12
+
   useEffect(() => {
     setSearchTerm(initialSearchTerm)
     setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [initialSearchTerm])
+
+  // Reset to first page on search change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
 
   // Group programs by Title to eliminate duplicates by school
   const groupedPrograms = useMemo(() => {
@@ -250,6 +259,13 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
         matchesSearchField(program.delivery_mode, query)
     )
   }, [groupedPrograms, searchTerm])
+
+  const paginatedPrograms = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredPrograms.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [filteredPrograms, currentPage])
+
+  const totalPages = Math.ceil(filteredPrograms.length / ITEMS_PER_PAGE)
 
   // Fetch training & assessment centers when a program is selected
   useEffect(() => {
@@ -440,75 +456,150 @@ export function ProgramsList({ initialPrograms, initialSearchTerm = '' }: Progra
           </div>
 
           {/* Programs Grid */}
-          {filteredPrograms.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPrograms.map((program, index) => {
-                const ProgramIcon = getProgramIcon(program.title)
-                return (
-                  <Card
-                    key={program.title}
-                    onClick={() => {
-                      setSelectedProgram(program)
-                      setActiveTab('training')
-                    }}
-                    className="card-lift border border-border/50 hover:border-primary/30 rounded-2xl overflow-hidden group animate-fade-in-up h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg shadow-xs active:scale-[0.99]"
-                    style={prefersReducedMotion ? {} : { opacity: 0, animationDelay: `${Math.min(index * 0.04, 0.3)}s` }}
-                  >
-                    {/* Top gradient highlight */}
-                    <div className="h-1.5 w-full bg-gradient-to-r from-primary/70 via-accent/40 to-transparent transition-all duration-300 group-hover:from-primary group-hover:via-accent" />
+          {paginatedPrograms.length > 0 ? (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedPrograms.map((program, index) => {
+                  const ProgramIcon = getProgramIcon(program.title)
+                  return (
+                    <Card
+                      key={program.title}
+                      onClick={() => {
+                        setSelectedProgram(program)
+                        setActiveTab('training')
+                      }}
+                      className="card-lift border border-border/50 hover:border-primary/30 rounded-2xl overflow-hidden group animate-fade-in-up h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg shadow-xs active:scale-[0.99]"
+                      style={prefersReducedMotion ? {} : { opacity: 0, animationDelay: `${Math.min(index * 0.04, 0.3)}s` }}
+                    >
+                      {/* Top gradient highlight */}
+                      <div className="h-1.5 w-full bg-gradient-to-r from-primary/70 via-accent/40 to-transparent transition-all duration-300 group-hover:from-primary group-hover:via-accent" />
 
-                    <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-between relative">
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-all duration-300 shadow-2xs">
-                            <ProgramIcon className="w-5.5 h-5.5 text-primary group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
+                      <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-between relative">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-all duration-300 shadow-2xs">
+                              <ProgramIcon className="w-5.5 h-5.5 text-primary group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
+                            </div>
+                            <Badge variant="secondary" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/10 text-[11px] font-semibold py-0.5 px-2">
+                              {program.offeringsCount} Center{program.offeringsCount > 1 ? 's' : ''}
+                            </Badge>
                           </div>
-                          <Badge variant="secondary" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/10 text-[11px] font-semibold py-0.5 px-2">
-                            {program.offeringsCount} Center{program.offeringsCount > 1 ? 's' : ''}
-                          </Badge>
+
+                          <h3 className="text-xl font-extrabold leading-tight group-hover:text-primary transition-colors line-clamp-2 pt-1 text-foreground">
+                            {program.title}
+                          </h3>
+
+                          {program.description && (
+                            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                              {program.description}
+                            </p>
+                          )}
                         </div>
 
-                        <h3 className="text-xl font-extrabold leading-tight group-hover:text-primary transition-colors line-clamp-2 pt-1 text-foreground">
-                          {program.title}
-                        </h3>
+                        <div className="space-y-3 pt-5 border-t border-border/50">
+                          {program.qualification_level && (
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                                <Award className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Level
+                              </span>
+                              <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.qualification_level}</span>
+                            </div>
+                          )}
+                          {program.duration_hours && (
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                                <Clock className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Duration
+                              </span>
+                              <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.duration_hours} hrs</span>
+                            </div>
+                          )}
+                          {program.delivery_mode && (
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                                <BookOpen className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Mode
+                              </span>
+                              <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.delivery_mode}</span>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
 
-                        {program.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                            {program.description}
-                          </p>
-                        )}
-                      </div>
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-10 pb-4 border-t border-border/40 mt-8">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (currentPage > 1) {
+                        setCurrentPage(currentPage - 1)
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }
+                    }}
+                    disabled={currentPage === 1}
+                    className="rounded-xl h-10 w-10 p-0 hover:bg-primary/5 hover:text-primary transition-all active:scale-95 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </Button>
 
-                      <div className="space-y-3 pt-5 border-t border-border/50">
-                        {program.qualification_level && (
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                              <Award className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Level
-                            </span>
-                            <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.qualification_level}</span>
-                          </div>
-                        )}
-                        {program.duration_hours && (
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                              <Clock className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Duration
-                            </span>
-                            <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.duration_hours} hrs</span>
-                          </div>
-                        )}
-                        {program.delivery_mode && (
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                              <BookOpen className="w-4 h-4 text-primary/70" strokeWidth={1.5} /> Mode
-                            </span>
-                            <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{program.delivery_mode}</span>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const page = i + 1
+                    // Display first, last, current, and adjacent pages
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      Math.abs(page - currentPage) <= 1
+                    ) {
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setCurrentPage(page)
+                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                          }}
+                          className={`rounded-xl h-10 w-10 font-bold transition-all active:scale-95 cursor-pointer ${
+                            currentPage === page
+                              ? 'bg-primary text-white shadow-md hover:bg-primary/95'
+                              : 'hover:bg-primary/5 hover:text-primary'
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      )
+                    }
+                    // Render ellipses
+                    if (page === 2 || page === totalPages - 1) {
+                      return (
+                        <span key={page} className="text-muted-foreground/60 px-1 font-bold">
+                          ...
+                        </span>
+                      )
+                    }
+                    return null
+                  })}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (currentPage < totalPages) {
+                        setCurrentPage(currentPage + 1)
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="rounded-xl h-10 w-10 p-0 hover:bg-primary/5 hover:text-primary transition-all active:scale-95 cursor-pointer"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-24 bg-card/30 rounded-3xl border border-border/50 backdrop-blur-sm">

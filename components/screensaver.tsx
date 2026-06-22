@@ -77,12 +77,13 @@ export function Screensaver() {
   const Icon = currentAchievement.icon;
 
   return (
-    <div 
+    <div
       onClick={() => setIsActive(false)}
       className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden font-sans cursor-pointer"
     >
       {/* Self-contained premium animations */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes kenBurns {
           0% { transform: scale(1) translate(0, 0); }
           50% { transform: scale(1.08) translate(1%, -1%); }
@@ -126,7 +127,7 @@ export function Screensaver() {
 
       {/* Layout Grid */}
       <div className="relative z-20 w-full h-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between py-16">
-        
+
         {/* Top Header info (Minimal & Premium) */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -145,11 +146,11 @@ export function Screensaver() {
 
         {/* Center / Bottom Left Content Card */}
         <div className="grid lg:grid-cols-12 gap-8 items-end">
-          
+
           {/* Main Showcase Panel */}
           <div className="lg:col-span-8 space-y-6 text-left">
             <div key={currentIndex} className="animate-fade-in-up duration-500 space-y-6">
-              
+
               {/* Animated Floating Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 text-xs font-semibold text-white tracking-wide shadow-md">
                 <Icon className="w-4 h-4 text-primary animate-pulse" />
@@ -177,17 +178,16 @@ export function Screensaver() {
                       setCurrentIndex(index);
                       setProgress(0);
                     }}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === currentIndex ? 'w-8 bg-primary' : 'w-2 bg-white/20 hover:bg-white/40'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 bg-primary' : 'w-2 bg-white/20 hover:bg-white/40'
+                      }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
                 ))}
               </div>
-              
+
               {/* Progress Line */}
               <div className="h-0.5 w-32 bg-white/10 rounded-full overflow-hidden hidden sm:block">
-                <div 
+                <div
                   className="h-full bg-primary transition-all duration-100 ease-linear"
                   style={{ width: `${progress}%` }}
                 />
@@ -211,23 +211,20 @@ export function Screensaver() {
                         setCurrentIndex(idx);
                         setProgress(0);
                       }}
-                      className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-300 active:scale-98 ${
-                        isCurrent
-                          ? 'bg-primary/20 border-primary/40 text-white shadow-lg'
-                          : 'bg-white/5 border-transparent hover:bg-white/10 text-white/70'
-                      }`}
+                      className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-300 active:scale-98 ${isCurrent
+                        ? 'bg-primary/20 border-primary/40 text-white shadow-lg'
+                        : 'bg-white/5 border-transparent hover:bg-white/10 text-white/70'
+                        }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          isCurrent ? 'bg-primary text-white' : 'bg-white/10 text-white/60'
-                        }`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isCurrent ? 'bg-primary text-white' : 'bg-white/10 text-white/60'
+                          }`}>
                           <ItemIcon className="w-4 h-4" />
                         </div>
                         <span className="text-xs font-bold truncate">{item.title}</span>
                       </div>
-                      <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                        isCurrent ? 'translate-x-0.5 text-primary' : 'text-white/30'
-                      }`} />
+                      <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${isCurrent ? 'translate-x-0.5 text-primary' : 'text-white/30'
+                        }`} />
                     </button>
                   );
                 })}
