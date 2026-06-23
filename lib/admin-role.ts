@@ -56,8 +56,8 @@ export function canAccessAdminPath(role: AdminRole | null, pathname: string): bo
   }
 
   const roleAllowedPrefixes: Record<AdminRole, string[]> = {
-    assessment_center: ['/admin/dashboard', '/admin/assessment', '/admin/assessors', '/admin/registry', '/admin/import'],
-    training_center: ['/admin/dashboard', '/admin/centers', '/admin/programs', '/admin/trainers', '/admin/registry', '/admin/import'],
+    assessment_center: ['/admin/dashboard', '/admin/assessment', '/admin/assessors', '/admin/registry', '/admin/import', '/admin/inquiries'],
+    training_center: ['/admin/dashboard', '/admin/centers', '/admin/programs', '/admin/trainers', '/admin/registry', '/admin/import', '/admin/inquiries'],
     admin: [
       '/admin/dashboard',
       '/admin/centers',
@@ -66,7 +66,8 @@ export function canAccessAdminPath(role: AdminRole | null, pathname: string): bo
       '/admin/assessment',
       '/admin/assessors',
       '/admin/registry',
-      '/admin/import'
+      '/admin/import',
+      '/admin/inquiries'
     ]
   }
 

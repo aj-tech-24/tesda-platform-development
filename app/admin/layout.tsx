@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { Shield, Activity, Building2, Users, User, Layers, Search, Settings, FileSpreadsheet, LogOut, BookOpen } from 'lucide-react'
+import { Shield, Activity, Building2, Users, User, Layers, Search, Settings, FileSpreadsheet, LogOut, BookOpen, MessageSquare } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 import { canAccessAdminPath, getAdminRole, type AdminRole } from '@/lib/admin-role'
@@ -19,6 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
+  const [pendingCount, setPendingCount] = useState(0)
 
   const isAuthPage = pathname === '/admin/login'
 
@@ -71,6 +72,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }
 
+  useEffect(() => {
+    if (user) {
+      fetchPendingCount()
+      // Optional: Poll every 30 seconds to keep it fresh
+      const interval = setInterval(fetchPendingCount, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
+
+  async function fetchPendingCount() {
+    try {
+      const res = await fetch('/api/admin/inquiries')
+      if (res.ok) {
+        const data = await res.json()
+        const pending = data.filter((inq: any) => inq.status === 'pending').length
+        setPendingCount(pending)
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/')
@@ -104,6 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Assessment Center', icon: Layers, path: '/admin/assessment' },
     { label: 'Assessors', icon: User, path: '/admin/assessors' },
     { label: 'Registry', icon: Search, path: '/admin/registry' },
+    { label: 'Inquiries', icon: MessageSquare, path: '/admin/inquiries' },
   ]
 
   const visibleNavItems = navItems.filter((item) => {
@@ -130,9 +154,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               const active = pathname.startsWith(item.path)
               return (
                 <Link key={item.path} href={item.path}>
-                  <Button variant={active ? 'secondary' : 'ghost'} size="sm" className={`h-8 gap-1.5 rounded-lg text-xs font-semibold ${active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                  <Button variant={active ? 'secondary' : 'ghost'} size="sm" className={`h-8 gap-1.5 rounded-lg text-xs font-semibold relative ${active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
                     <item.icon className="w-3.5 h-3.5" />
                     {item.label}
+                    {item.label === 'Inquiries' && pendingCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                      </span>
+                    )}
                   </Button>
                 </Link>
               )

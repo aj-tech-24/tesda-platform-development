@@ -5,6 +5,7 @@ import './globals.css'
 import { Screensaver } from '@/components/screensaver'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
+import { InquiryWidget } from '@/components/inquiry-widget'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
           <Toaster position="top-center" richColors />
+          <InquiryWidget />
         </ThemeProvider>
       </body>
     </html>

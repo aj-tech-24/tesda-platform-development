@@ -27,10 +27,10 @@ const ACHIEVEMENTS = [
   }
 ];
 
-const ROTATION_TIME = 6000; // 6 seconds
+const ROTATION_TIME = 4000; // 4 seconds
 
 export function Screensaver() {
-  const isIdle = useIdleTimeout(10000); // Trigger screensaver after 10s of inactivity (dev mode, change to 60000 for prod if needed)
+  const isIdle = useIdleTimeout(20000); // Trigger screensaver after 20s of inactivity (dev mode, change to 60000 for prod if needed)
   const pathname = usePathname();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
