@@ -20,8 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname()
   const supabase = createClient()
 
-  // Skip auth check and layout for login and signup pages
-  const isAuthPage = pathname === '/admin/login' || pathname === '/admin/sign-up'
+  const isAuthPage = pathname === '/admin/login'
 
   const [loading, setLoading] = useState(() => !isAuthPage)
 

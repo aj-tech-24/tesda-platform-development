@@ -20,8 +20,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/admin') ||
     request.nextUrl.pathname.startsWith('/protected')
   const isAuthExempt =
-    request.nextUrl.pathname.startsWith('/admin/login') ||
-    request.nextUrl.pathname.startsWith('/admin/sign-up')
+    request.nextUrl.pathname.startsWith('/admin/login')
 
   if (!isProtectedRoute || isAuthExempt) {
     return NextResponse.next({ request })

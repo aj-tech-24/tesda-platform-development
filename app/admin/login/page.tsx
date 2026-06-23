@@ -138,21 +138,6 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border/50" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-3 text-muted-foreground">or</span>
-              </div>
-            </div>
-
-            <div className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link href="/admin/sign-up" className="text-primary hover:underline underline-offset-2 font-semibold">
-                Sign up
-              </Link>
-            </div>
           </CardContent>
         </Card>
 
